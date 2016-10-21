@@ -381,6 +381,18 @@ describe('MdRadio', () => {
       fixture.detectChanges();
       expect(testComponent.lastEvent.value).toBe('vanilla');
     });
+
+    it('should update the model if uncheck a button programmatically', () => {
+      radioInstances[1].checked = true;
+      fixture.detectChanges();
+
+      expect(testComponent.modelValue).toBe('chocolate');
+
+      radioInstances[1].checked = false;
+      fixture.detectChanges();
+
+      expect(testComponent.modelValue).toBeFalsy();
+    });
   });
 
   describe('as standalone', () => {
