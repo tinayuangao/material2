@@ -62,6 +62,11 @@ export {
   MdUniqueSelectionDispatcherListener
 } from './coordination/unique-selection-dispatcher';
 
+export {
+  MdSelectionModel,
+  MdSelectionChangeEvent
+} from './selection/selection';
+
 export {MdLineModule, MdLine, MdLineSetter} from './line/line';
 
 // Style

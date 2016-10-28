@@ -21,7 +21,7 @@ import {
   NG_VALUE_ACCESSOR,
   ControlValueAccessor
 } from '@angular/forms';
-import {MdRippleModule, MdUniqueSelectionDispatcher} from '../core';
+import {MdRippleModule, MdUniqueSelectionDispatcher, MdSelectionModel} from '../core';
 import {coerceBooleanProperty} from '../core/coersion/boolean-property';
 
 
@@ -80,6 +80,8 @@ export class MdRadioGroup implements AfterContentInit, ControlValueAccessor {
   /** Whether the `value` has been set to its initial value. */
   private _isInitialized: boolean = false;
 
+  private _selectionModel: MdSelectionModel = new MdSelectionModel();
+
   /** The method to be called in order to update ngModel */
   _controlValueAccessorChangeFn: (value: any) => void = (value) => {};
 
@@ -93,6 +95,10 @@ export class MdRadioGroup implements AfterContentInit, ControlValueAccessor {
   /** Child radio buttons. */
   @ContentChildren(forwardRef(() => MdRadioButton))
   _radios: QueryList<MdRadioButton> = null;
+
+  get selectionModel(): MdSelectionModel {
+    return this._selectionModel;
+  }
 
   @Input()
   get name(): string {
@@ -118,14 +124,12 @@ export class MdRadioGroup implements AfterContentInit, ControlValueAccessor {
 
   @Input()
   get value(): any {
-    return this._value;
+    return this._selectionModel.selectedValue;
   }
 
   set value(newValue: any) {
-    if (this._value != newValue) {
-      // Set this before proceeding to ensure no circular loop occurs with selection.
-      this._value = newValue;
-
+    let isNotSelected: boolean = this._selectionModel.select(newValue);
+    if (isNotSelected) {
       this._updateSelectedRadioFromValue();
 
       // Only fire a change event if this isn't the first time the value is ever set.
