@@ -137,7 +137,6 @@ export class MdButtonToggleGroup implements AfterViewInit, ControlValueAccessor 
     return this._selected;
   }
 
-  // when set selected, we should update value, and selectionModel
   set selected(selected: MdButtonToggle) {
     this._selected = selected;
     this.value = selected ? selected.value : null;
@@ -286,10 +285,6 @@ export class MdButtonToggle implements OnInit {
   ngOnInit() {
     if (this.id == null) {
       this.id = `md-button-toggle-${_uniqueIdCounter++}`;
-    }
-
-    if (this._selectionModel) {
-      this._checked = this._selectionModel.isSelected(this._value)
     }
   }
 
