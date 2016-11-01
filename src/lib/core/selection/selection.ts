@@ -1,4 +1,4 @@
-import {Injectable, EventEmitter, Output} from '@angular/core';
+import {EventEmitter, Output} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 
@@ -11,7 +11,6 @@ import {Observable} from 'rxjs/Observable';
  * This service does not *store* any IDs and names because they may change at any time, so it is
  * less error-prone if they are simply passed through when the events occur.
  */
-@Injectable()
 export class MdSelectionModel {
 
   protected _selectedValues: any[];
