@@ -25,6 +25,9 @@ class CompareImageDiff {
     }
   }
 
+  /*
+  Load a single image with url
+   */
   _loadSingleImage(url, callback) {
     request.get(url, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -36,33 +39,38 @@ class CompareImageDiff {
   }
 
 
-  compareUrlImageDiff(filenameA, filenameB, outFilename, callback) {
+  /*
+  Compare the two images,
+   */
+  compareUrlImageDiff(filenameA, filenameB, callback) {
     var self = this;
     var cb = function(images) {
-      var result = self._compare(images[0], images[1], outFilename);
-      if (callback) {
-        callback(result);
-      }
+      self._compare(images[0], images[1], callback);
     };
     this._loadImages([filenameA, filenameB], cb);
   }
 
-  _compare(a, b, outFilename) {
+  _compare(a, b, callback) {
     var diff = imagediff.diff(a, b);
     var canvas = imagediff.createCanvas(diff.width, diff.height);
     var context = canvas.getContext('2d');
     context.putImageData(diff, 0, 0);
-    if (outFilename) {
-      canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, outFilename)));
+    var isEqual = imagediff.equal(a, b, 0);
+    if (callback) {
+      callback(imagediff.equal(a, b, 0), diff);
     }
-    return imagediff.equal(a, b, 0);
+    return isEqual;
   }
 
 };
 
 new CompareImageDiff().compareUrlImageDiff('http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_a.jpg',
-'http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_b.jpg', 'image-src.png', function(result) {
-    console.log(result);
+'http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_b.jpg', function(isEqual, diff) {
+    var canvas = imagediff.createCanvas(diff.width, diff.height);
+    var context = canvas.getContext('2d');
+    context.putImageData(diff, 0, 0);
+    canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'image-diff.png')));
+    console.log(isEqual);
   });
 
 

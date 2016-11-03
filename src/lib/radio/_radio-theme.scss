@@ -10,7 +10,7 @@
   $foreground: map-get($theme, foreground);
 
   .md-radio-outer-circle {
-    border-color: md-color($foreground, secondary-text);
+     border-color: md-color($foreground, secondary-text);
 
     .md-radio-checked & {
       border-color: md-color($accent);
