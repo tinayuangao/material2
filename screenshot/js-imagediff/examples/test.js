@@ -28,12 +28,8 @@ class CompareImageDiff {
   _loadSingleImage(url, callback) {
     request.get(url, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        var type = response.headers["content-type"];
-        var prefix = "data:" + type + ";base64,";
-        var base64 = new Buffer(body).toString('base64');
-        var data = prefix + base64;
         var image = new Image();
-        image.src = data;
+        image.src = body;
         callback(image);
       }
     });
@@ -43,22 +39,22 @@ class CompareImageDiff {
   compareUrlImageDiff(filenameA, filenameB, outFilename, callback) {
     var self = this;
     var cb = function(images) {
-      callback(self._compare(images[0], images[1], outFilename));
+      var result = self._compare(images[0], images[1], outFilename);
+      if (callback) {
+        callback(result);
+      }
     };
     this._loadImages([filenameA, filenameB], cb);
   }
 
   _compare(a, b, outFilename) {
     var diff = imagediff.diff(a, b);
-
     var canvas = imagediff.createCanvas(diff.width, diff.height);
-
     var context = canvas.getContext('2d');
-
     context.putImageData(diff, 0, 0);
-
-    canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, outFilename)));
-    console.log('result is', imagediff.equal(a, b, 0));
+    if (outFilename) {
+      canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, outFilename)));
+    }
     return imagediff.equal(a, b, 0);
   }
 
