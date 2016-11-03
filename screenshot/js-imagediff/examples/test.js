@@ -40,7 +40,21 @@ class CompareImageDiff {
 
 
   /*
-  Compare the two images,
+  Output the image to outFilename
+   */
+  generateDiffImage(diff, outFilename) {
+    var canvas = imagediff.createCanvas(diff.width, diff.height);
+    var context = canvas.getContext('2d');
+    context.putImageData(diff, 0, 0);
+    canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, outFilename)));
+  }
+
+  generateDiffHTML(diff) {
+  //  var image1 =
+  }
+
+  /*
+  Compare the two images
    */
   compareUrlImageDiff(filenameA, filenameB, callback) {
     var self = this;
@@ -50,26 +64,22 @@ class CompareImageDiff {
     this._loadImages([filenameA, filenameB], cb);
   }
 
+  /*
+  The actual comparison using imagediff
+   */
   _compare(a, b, callback) {
     var diff = imagediff.diff(a, b);
-    var canvas = imagediff.createCanvas(diff.width, diff.height);
-    var context = canvas.getContext('2d');
-    context.putImageData(diff, 0, 0);
     var isEqual = imagediff.equal(a, b, 0);
     if (callback) {
-      callback(imagediff.equal(a, b, 0), diff);
+      callback(isEqual, diff, [a, b]);
     }
-    return isEqual;
   }
-
 };
 
-new CompareImageDiff().compareUrlImageDiff('http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_a.jpg',
+var compare = new CompareImageDiff();
+compare.compareUrlImageDiff('http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_a.jpg',
 'http://raw.githubusercontent.com/tinayuangao/js-imagediff/master/examples/1_normal_b.jpg', function(isEqual, diff) {
-    var canvas = imagediff.createCanvas(diff.width, diff.height);
-    var context = canvas.getContext('2d');
-    context.putImageData(diff, 0, 0);
-    canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'image-diff.png')));
+    compare.generateDiffImage(diff, 'image-diff.png');
     console.log(isEqual);
   });
 
