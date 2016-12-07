@@ -25,6 +25,7 @@ import {
   DefaultStyleCompatibilityModeModule,
 } from '../core';
 import {coerceBooleanProperty} from '../core/coersion/boolean-property';
+import {ViewportRuler} from '../core/overlay/position/viewport-ruler';
 
 
 /**
@@ -476,7 +477,7 @@ export class MdRadioModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: MdRadioModule,
-      providers: [MdUniqueSelectionDispatcher],
+      providers: [MdUniqueSelectionDispatcher, ViewportRuler],
     };
   }
 }
