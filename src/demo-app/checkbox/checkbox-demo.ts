@@ -63,6 +63,8 @@ export class MdCheckboxDemoNestedChecklist {
   styleUrls: ['checkbox-demo.css'],
 })
 export class CheckboxDemo {
+  checked: boolean = true;
+  indeterminate: boolean = true;
   isIndeterminate: boolean = false;
   isChecked: boolean = false;
   isDisabled: boolean = false;

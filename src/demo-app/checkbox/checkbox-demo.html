@@ -45,3 +45,17 @@
 
 <h1>Nested Checklist</h1>
 <md-checkbox-demo-nested-checklist></md-checkbox-demo-nested-checklist>
+<md-card>
+  <md-checkbox [(ngModel)]="checked" [indeterminate]="indeterminate">
+    Active
+  </md-checkbox>
+  <br>
+  <label>
+    <input type="checkbox" [(ngModel)]="checked" [indeterminate]="indeterminate">
+    Active
+  </label>
+  <br><br><br>
+  <button (click)="checked=!checked">Toggle Checked: {{checked}}</button>
+  &nbsp;
+  <button (click)="indeterminate=!indeterminate">Toggle Indeterminate: {{indeterminate}}</button><br>
+</md-card>
