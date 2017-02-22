@@ -48,7 +48,8 @@ export class DemoApp {
     {name: 'Toolbar', route: 'toolbar'},
     {name: 'Tooltip', route: 'tooltip'},
     {name: 'Platform', route: 'platform'},
-    {name: 'Style', route: 'style'}
+    {name: 'Style', route: 'style'},
+    {name: 'Tree', route: 'tree'}
   ];
 
   constructor(private _element: ElementRef) {

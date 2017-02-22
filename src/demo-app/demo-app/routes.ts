@@ -32,6 +32,7 @@ import {PlatformDemo} from '../platform/platform-demo';
 import {AutocompleteDemo} from '../autocomplete/autocomplete-demo';
 import {InputDemo} from '../input/input-demo';
 import {StyleDemo} from '../style/style-demo';
+import {TreeDemo} from '../tree/tree-demo';
 
 export const DEMO_APP_ROUTES: Routes = [
   {path: '', component: Home},
@@ -63,6 +64,7 @@ export const DEMO_APP_ROUTES: Routes = [
   {path: 'ripple', component: RippleDemo},
   {path: 'dialog', component: DialogDemo},
   {path: 'tooltip', component: TooltipDemo},
+  {path: 'tree', component: TreeDemo},
   {path: 'snack-bar', component: SnackBarDemo},
   {path: 'platform', component: PlatformDemo},
   {path: 'style', component: StyleDemo},

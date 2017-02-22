@@ -43,6 +43,7 @@ import {PlatformDemo} from './platform/platform-demo';
 import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
 import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
+import {TreeDemo} from './tree/tree-demo';
 
 
 @NgModule({
@@ -100,6 +101,7 @@ import {StyleDemo} from './style/style-demo';
     RainyTabContent,
     FoggyTabContent,
     PlatformDemo,
+    TreeDemo,
   ],
   providers: [
     {provide: OverlayContainer, useClass: FullscreenOverlayContainer}
