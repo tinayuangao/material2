@@ -43,7 +43,7 @@ import {PlatformDemo} from './platform/platform-demo';
 import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
 import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
-import {TreeDemo} from './tree/tree-demo';
+import {TreeDemo, TreeNodeKey} from './tree/tree-demo';
 
 
 @NgModule({
@@ -102,6 +102,7 @@ import {TreeDemo} from './tree/tree-demo';
     FoggyTabContent,
     PlatformDemo,
     TreeDemo,
+    TreeNodeKey,
   ],
   providers: [
     {provide: OverlayContainer, useClass: FullscreenOverlayContainer}
@@ -114,6 +115,7 @@ import {TreeDemo} from './tree/tree-demo';
     RotiniPanel,
     ScienceJoke,
     SpagettiPanel,
+    TreeNodeKey,
   ],
 })
 export class DemoAppModule {
