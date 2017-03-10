@@ -35,6 +35,9 @@ matrix:
 install:
   - npm install
 
+before_install:
+  - openssl aes-256-cbc -K $encrypted_32dd848f4413_key -iv $encrypted_32dd848f4413_iv -in material2-screenshots-firebase-adminsdk-t4209-9d21f47567.json.enc -out ~\/Downloads/material2-screenshots-firebase-adminsdk-t4209-9d21f47567.json -d
+
 before_script:
   - mkdir -p $LOGS_DIR
 
