@@ -41,6 +41,7 @@ matrix:
 
 before_install:
   - source ./scripts/ci/env.sh
+  - openssl aes-256-cbc -K $encrypted_e2ff4b01a052_key -iv $encrypted_e2ff4b01a052_iv -in tools/screenshot-test/material2-screenshots.json.enc -out tools/screenshot-test/material2-screenshots.json -d
 
 install:
   - npm install
