@@ -44,7 +44,7 @@ import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
 import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
 import {TreeDemo} from './tree/tree-demo';
-
+import {PeopleDatabase} from './tree/person-database';
 
 @NgModule({
   imports: [
@@ -104,7 +104,7 @@ import {TreeDemo} from './tree/tree-demo';
     TreeDemo,
   ],
   providers: [
-    {provide: OverlayContainer, useClass: FullscreenOverlayContainer}
+    {provide: OverlayContainer, useClass: FullscreenOverlayContainer},  PeopleDatabase
   ],
   entryComponents: [
     DemoApp,
