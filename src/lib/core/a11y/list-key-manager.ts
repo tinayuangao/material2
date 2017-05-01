@@ -96,11 +96,13 @@ export class ListKeyManager<T extends CanDisable> {
 
   /** Sets the active item to the next enabled item in the list. */
   setNextItemActive(): void {
+    console.log(`set next item active ${this._activeItemIndex}`);
     this._activeItemIndex === null ? this.setFirstItemActive() : this._setActiveItemByDelta(1);
   }
 
   /** Sets the active item to a previous enabled item in the list. */
   setPreviousItemActive(): void {
+    console.log(`this index ${this._activeItemIndex} ${this._items.length}`);
     this._activeItemIndex === null && this._wrap ? this.setLastItemActive()
                                                  : this._setActiveItemByDelta(-1);
   }
@@ -140,6 +142,7 @@ export class ListKeyManager<T extends CanDisable> {
     // when active item would leave menu, wrap to beginning or end
     this._activeItemIndex =
       (this._activeItemIndex + delta + items.length) % items.length;
+    console.log(`wrap next active index is ${this._activeItemIndex}`);
 
     // skip all disabled menu items recursively until an enabled one is reached
     if (items[this._activeItemIndex].disabled) {
@@ -155,6 +158,7 @@ export class ListKeyManager<T extends CanDisable> {
    * it encounters either end of the list, it will stop and not wrap.
    */
   private _setActiveInDefaultMode(delta: number, items: T[]): void {
+    console.log(`next active index is ${this._activeItemIndex + delta}`);
     this._setActiveItemByIndex(this._activeItemIndex + delta, delta, items);
   }
 
