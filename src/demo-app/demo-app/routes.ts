@@ -33,6 +33,7 @@ import {AutocompleteDemo} from '../autocomplete/autocomplete-demo';
 import {InputDemo} from '../input/input-demo';
 import {StyleDemo} from '../style/style-demo';
 import {TreeDemo} from '../tree/tree-demo';
+import {SimpleTreeDemo} from '../tree/simple-tree-demo';
 
 export const DEMO_APP_ROUTES: Routes = [
   {path: '', component: Home},
@@ -65,6 +66,7 @@ export const DEMO_APP_ROUTES: Routes = [
   {path: 'dialog', component: DialogDemo},
   {path: 'tooltip', component: TooltipDemo},
   {path: 'tree', component: TreeDemo},
+  {path: 'simple-tree', component: SimpleTreeDemo},
   {path: 'snack-bar', component: SnackBarDemo},
   {path: 'platform', component: PlatformDemo},
   {path: 'style', component: StyleDemo},

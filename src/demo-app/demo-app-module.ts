@@ -44,6 +44,7 @@ import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
 import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
 import {TreeDemo} from './tree/tree-demo';
+import {SimpleTreeDemo} from './tree/simple-tree-demo';
 import {PeopleDatabase} from './tree/person-database';
 
 @NgModule({
@@ -98,6 +99,7 @@ import {PeopleDatabase} from './tree/person-database';
     TooltipDemo,
     TabsDemo,
     SunnyTabContent,
+    SimpleTreeDemo,
     RainyTabContent,
     FoggyTabContent,
     PlatformDemo,
