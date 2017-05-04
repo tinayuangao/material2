@@ -45,6 +45,7 @@ import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
 import {TreeDemo} from './tree/tree-demo';
 import {SimpleTreeDemo} from './tree/simple-tree-demo';
+import {SimpleTreeNode} from './tree/simple-tree-node';
 import {PeopleDatabase} from './tree/person-database';
 
 @NgModule({
@@ -104,6 +105,7 @@ import {PeopleDatabase} from './tree/person-database';
     FoggyTabContent,
     PlatformDemo,
     TreeDemo,
+    SimpleTreeNode,
   ],
   providers: [
     {provide: OverlayContainer, useClass: FullscreenOverlayContainer},  PeopleDatabase
