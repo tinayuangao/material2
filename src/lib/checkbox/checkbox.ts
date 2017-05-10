@@ -252,6 +252,8 @@ export class MdCheckbox extends _MdCheckboxMixinBase
   get color(): string { return this._color; }
   set color(value: string) { this._updateColor(value); }
 
+  set disabled(value: any) {}
+
   _updateColor(newColor: string) {
     this._setElementColor(this._color, false);
     this._setElementColor(newColor, true);
