@@ -47,7 +47,6 @@ import {TreeDemo} from './tree/tree-demo';
 import {SimpleTreeDemo} from './tree/simple-tree-demo';
 import {SimpleTreeNode} from './tree/simple-tree-node';
 import {SimpleNestedTreeDemo} from './tree/simple-nested-tree';
-import {SimpleNestedTreeNode} from './tree/simple-nested-node';
 import {PeopleDatabase} from './tree/person-database';
 
 @NgModule({
@@ -108,7 +107,6 @@ import {PeopleDatabase} from './tree/person-database';
     PlatformDemo,
     TreeDemo,
     SimpleTreeNode,
-    SimpleNestedTreeNode,
     SimpleNestedTreeDemo,
   ],
   providers: [

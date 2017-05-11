@@ -35,7 +35,7 @@ import {MdDialogModule} from './dialog/index';
 import {PlatformModule} from './core/platform/index';
 import {MdAutocompleteModule} from './autocomplete/index';
 import {StyleModule} from './core/style/index';
-import {MdTreeModule} from './tree/index';
+import {CdkTreeModule} from './tree/index';
 
 const MATERIAL_MODULES = [
   MdAutocompleteModule,
@@ -62,7 +62,7 @@ const MATERIAL_MODULES = [
   MdTabsModule,
   MdToolbarModule,
   MdTooltipModule,
-  MdTreeModule,
+  CdkTreeModule,
   OverlayModule,
   PortalModule,
   RtlModule,
