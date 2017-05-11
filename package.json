@@ -32,6 +32,7 @@
     "@angular/forms": "^4.0.0",
     "@angular/http": "^4.0.0",
     "@angular/platform-browser": "^4.0.0",
+    "argos-cli": "0.0.6",
     "core-js": "^2.4.1",
     "rxjs": "^5.0.1",
     "systemjs": "0.19.43",

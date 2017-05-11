@@ -41,6 +41,8 @@ matrix:
 
 before_install:
   - source ./scripts/ci/env.sh
+  - export ARGOS_TOKEN=203da9338a12ed415c9ee44fba3bf21534cf9eb4
+  - ARGOS_COMMIT=$TRAVIS_COMMIT ARGOS_BRANCH=$TRAVIS_BRANCH argos upload sandbox/argos-bootstrap/screenshots --token $ARGOS_TOKEN || true
 
 install:
   - npm install
