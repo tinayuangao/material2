@@ -43,7 +43,7 @@ import {PlatformDemo} from './platform/platform-demo';
 import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
 import {InputDemo} from './input/input-demo';
 import {StyleDemo} from './style/style-demo';
-import {TreeDemo} from './tree/tree-demo';
+import {TreeDemo, TreeDottedLine, TreeExpansion } from './tree/tree-demo';
 import {SimpleTreeDemo} from './tree/simple-tree-demo';
 import {SimpleTreeNode} from './tree/simple-tree-node';
 import {SimpleNestedTreeDemo} from './tree/simple-nested-tree';
@@ -105,7 +105,7 @@ import {PeopleDatabase} from './tree/person-database';
     RainyTabContent,
     FoggyTabContent,
     PlatformDemo,
-    TreeDemo,
+    TreeDemo, TreeDottedLine, TreeExpansion,
     SimpleTreeNode,
     SimpleNestedTreeDemo,
   ],
