@@ -32,7 +32,7 @@ import {Subscription} from 'rxjs/Subscription';
   host: {
     // Properties
     '[attr.tabindex]': '_tabIndex',
-    'role': 'listbox',
+    'role': 'grid',
     '[class.mat-chip-list]': 'true',
 
     // Events

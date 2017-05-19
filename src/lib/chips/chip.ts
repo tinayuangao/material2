@@ -26,11 +26,12 @@ export interface MdChipEvent {
   host: {
     '[class.mat-chip]': 'true',
     'tabindex': '-1',
-    'role': 'option',
+    'role': 'gridcell',
 
     '[class.mat-chip-selected]': 'selected',
     '[attr.disabled]': 'disabled',
     '[attr.aria-disabled]': '_isAriaDisabled',
+    '[attr.aria-selected]': 'selected',
 
     '(click)': '_handleClick($event)'
   }
