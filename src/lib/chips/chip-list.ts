@@ -18,6 +18,7 @@ import {
   ChangeDetectorRef,
   Component,
   ContentChildren,
+  DoCheck,
   ElementRef,
   EventEmitter,
   Input,
@@ -30,7 +31,14 @@ import {
   Self,
   ViewEncapsulation,
 } from '@angular/core';
-import {ControlValueAccessor, FormGroupDirective, NgControl, NgForm} from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormControl,
+  FormGroupDirective,
+  NgControl,
+  NgForm
+} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
 import {MatFormFieldControl} from '@angular/material/form-field';
 import {Observable} from 'rxjs/Observable';
 import {merge} from 'rxjs/observable/merge';
@@ -80,7 +88,7 @@ export class MatChipListChange {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MatChipList implements MatFormFieldControl<any>, ControlValueAccessor,
-    AfterContentInit, OnInit, OnDestroy {
+    AfterContentInit, DoCheck, OnInit, OnDestroy {
   readonly controlType = 'mat-chip-list';
 
   /**
@@ -162,6 +170,9 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
 
   _selectionModel: SelectionModel<MatChip>;
 
+  /** Whether the chip list is in an error state. */
+  errorState = false;
+
   /** Comparison function to specify which option is displayed. Defaults to object equality. */
   private _compareWith = (o1: any, o2: any) => o1 === o2;
 
@@ -173,6 +184,9 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
   get role(): string|null {
     return this.empty ? null : 'listbox';
   }
+
+  /** An object used to control when error messages are shown. */
+  @Input() errorStateMatcher: ErrorStateMatcher;
 
   /** Whether the user should be allowed to select multiple chips. */
   @Input()
@@ -252,14 +266,6 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
   get disabled() { return this.ngControl ? this.ngControl.disabled : this._disabled; }
   set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
 
-  /** Whether the chip list is in an error state. */
-  get errorState(): boolean {
-    const isInvalid = this.ngControl && this.ngControl.invalid;
-    const isTouched = this.ngControl && this.ngControl.touched;
-    const isSubmitted = (this._parentFormGroup && this._parentFormGroup.submitted) ||
-      (this._parentForm && this._parentForm.submitted);
-    return !!(isInvalid && (isTouched || isSubmitted));
-  }
 
   /** Orientation of the chip list. */
   @Input('aria-orientation') ariaOrientation: 'horizontal' | 'vertical' = 'horizontal';
@@ -317,6 +323,7 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
               @Optional() private _dir: Directionality,
               @Optional() private _parentForm: NgForm,
               @Optional() private _parentFormGroup: FormGroupDirective,
+              private _defaultErrorStateMatcher: ErrorStateMatcher,
               @Optional() @Self() public ngControl: NgControl) {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
@@ -352,6 +359,15 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
   ngOnInit() {
     this._selectionModel = new SelectionModel<MatChip>(this.multiple, undefined, false);
     this.stateChanges.next();
+  }
+
+  ngDoCheck() {
+    if (this.ngControl) {
+      // We need to re-evaluate this on every change detection cycle, because there are some
+      // error triggers that we can't subscribe to (e.g. parent form submissions). This means
+      // that whatever logic is in here has to be super lean or we risk destroying the performance.
+      this._updateErrorState();
+    }
   }
 
   ngOnDestroy(): void {
@@ -512,6 +528,20 @@ export class MatChipList implements MatFormFieldControl<any>, ControlValueAccess
 
     // Reset our destroyed index
     this._lastDestroyedIndex = null;
+  }
+
+  /** Re-evaluates the error state. This is only relevant with @angular/forms. */
+  protected _updateErrorState() {
+    const oldState = this.errorState;
+    const parent = this._parentFormGroup || this._parentForm;
+    const matcher = this.errorStateMatcher || this._defaultErrorStateMatcher;
+    const control = this.ngControl ? this.ngControl.control as FormControl : null;
+    const newState = matcher.isErrorState(control, parent);
+
+    if (newState !== oldState) {
+      this.errorState = newState;
+      this.stateChanges.next();
+    }
   }
 
   /**
