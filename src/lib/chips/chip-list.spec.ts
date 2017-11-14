@@ -866,8 +866,6 @@ describe('MatChipList', () => {
   });
 
   describe('error messages', () => {
-    let fixture: ComponentFixture<ChipListWithFormErrorMessages>;
-    let testComponent: ChipListWithFormErrorMessages;
     let containerEl: HTMLElement;
     let chipListEl: HTMLElement;
 
@@ -1050,14 +1048,14 @@ class FormFieldChipList {
 })
 class BasicChipList {
   foods: any[] = [
-    { value: 'steak-0', viewValue: 'Steak' },
-    { value: 'pizza-1', viewValue: 'Pizza' },
-    { value: 'tacos-2', viewValue: 'Tacos', disabled: true },
-    { value: 'sandwich-3', viewValue: 'Sandwich' },
-    { value: 'chips-4', viewValue: 'Chips' },
-    { value: 'eggs-5', viewValue: 'Eggs' },
-    { value: 'pasta-6', viewValue: 'Pasta' },
-    { value: 'sushi-7', viewValue: 'Sushi' },
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos', disabled: true},
+    {value: 'sandwich-3', viewValue: 'Sandwich'},
+    {value: 'chips-4', viewValue: 'Chips'},
+    {value: 'eggs-5', viewValue: 'Eggs'},
+    {value: 'pasta-6', viewValue: 'Pasta'},
+    {value: 'sushi-7', viewValue: 'Sushi'},
   ];
   control = new FormControl();
   isRequired: boolean;
@@ -1085,14 +1083,14 @@ class BasicChipList {
 })
 class MultiSelectionChipList {
   foods: any[] = [
-    { value: 'steak-0', viewValue: 'Steak' },
-    { value: 'pizza-1', viewValue: 'Pizza' },
-    { value: 'tacos-2', viewValue: 'Tacos', disabled: true },
-    { value: 'sandwich-3', viewValue: 'Sandwich' },
-    { value: 'chips-4', viewValue: 'Chips' },
-    { value: 'eggs-5', viewValue: 'Eggs' },
-    { value: 'pasta-6', viewValue: 'Pasta' },
-    { value: 'sushi-7', viewValue: 'Sushi' },
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos', disabled: true},
+    {value: 'sandwich-3', viewValue: 'Sandwich'},
+    {value: 'chips-4', viewValue: 'Chips'},
+    {value: 'eggs-5', viewValue: 'Eggs'},
+    {value: 'pasta-6', viewValue: 'Pasta'},
+    {value: 'sushi-7', viewValue: 'Sushi'},
   ];
   control = new FormControl();
   isRequired: boolean;
@@ -1123,14 +1121,14 @@ class MultiSelectionChipList {
 })
 class InputChipList {
   foods: any[] = [
-    { value: 'steak-0', viewValue: 'Steak' },
-    { value: 'pizza-1', viewValue: 'Pizza' },
-    { value: 'tacos-2', viewValue: 'Tacos', disabled: true },
-    { value: 'sandwich-3', viewValue: 'Sandwich' },
-    { value: 'chips-4', viewValue: 'Chips' },
-    { value: 'eggs-5', viewValue: 'Eggs' },
-    { value: 'pasta-6', viewValue: 'Pasta' },
-    { value: 'sushi-7', viewValue: 'Sushi' },
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos', disabled: true},
+    {value: 'sandwich-3', viewValue: 'Sandwich'},
+    {value: 'chips-4', viewValue: 'Chips'},
+    {value: 'eggs-5', viewValue: 'Eggs'},
+    {value: 'pasta-6', viewValue: 'Pasta'},
+    {value: 'sushi-7', viewValue: 'Sushi'},
   ];
   control = new FormControl();
 
@@ -1171,8 +1169,8 @@ class InputChipList {
 })
 class FalsyValueChipList {
   foods: any[] = [
-    { value: 0, viewValue: 'Steak' },
-    { value: 1, viewValue: 'Pizza' },
+    {value: 0, viewValue: 'Steak'},
+    {value: 1, viewValue: 'Pizza'},
   ];
   control = new FormControl();
   @ViewChildren(MatChip) chips: QueryList<MatChip>;
@@ -1189,9 +1187,9 @@ class FalsyValueChipList {
 })
 class SelectedChipList {
   foods: any[] = [
-    { value: 0, viewValue: 'Steak', selected: true },
-    { value: 1, viewValue: 'Pizza', selected: false },
-    { value: 2, viewValue: 'Pasta', selected: true },
+    {value: 0, viewValue: 'Steak', selected: true},
+    {value: 1, viewValue: 'Pizza', selected: false},
+    {value: 2, viewValue: 'Pasta', selected: true},
   ];
   @ViewChildren(MatChip) chips: QueryList<MatChip>;
 }
@@ -1213,9 +1211,9 @@ class SelectedChipList {
 })
 class ChipListWithFormErrorMessages {
   foods: any[] = [
-    { value: 0, viewValue: 'Steak', selected: true },
-    { value: 1, viewValue: 'Pizza', selected: false },
-    { value: 2, viewValue: 'Pasta', selected: true },
+    {value: 0, viewValue: 'Steak', selected: true},
+    {value: 1, viewValue: 'Pizza', selected: false},
+    {value: 2, viewValue: 'Pasta', selected: true},
   ];
   @ViewChildren(MatChip) chips: QueryList<MatChip>;
 
