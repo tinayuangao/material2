@@ -20,6 +20,16 @@ $mat-chip-input-margin: 3px;
 $mat-chip-avatar-size: 32px;
 $mat-chip-remove-size: 18px;
 
+// To make sure the ripple position is correct
+.mat-chip {
+  position: relative;
+  overflow: hidden;
+}
+
+.mat-basic-chip .mat-ripple-element {
+  display: none;
+}
+
 .mat-standard-chip {
   @include mat-elevation-transition;
   display: inline-flex;
