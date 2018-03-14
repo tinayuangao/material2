@@ -3,11 +3,6 @@
     display: block;
   }
 
-  .demo-tree-toggle {
-    font-size: 24px;
-    padding-right: 4px;
-  }
-
   .demo-tree-nested-node {
     padding-left: 20px;
   }
@@ -17,22 +12,12 @@
   }
 
   ul, li {
-    -webkit-margin-before: 0;
-    -webkit-margin-after: 0;
+    margin-top: 0;
+    margin-bottom: 0;
     list-style-type: none;
   }
 
   .mat-card {
     margin: 16px;
-  }
-}
-
-.checklist-leaf-node {
-  padding-left: 40px;
-  padding-right: inherit;
-
-  [dir='rtl'] & {
-    padding-right: 60px;
-    padding-left: inherit;
   }
 }

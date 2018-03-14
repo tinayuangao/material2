@@ -75,4 +75,18 @@ export class TreeDemo {
   hasChild = (_: number, _nodeData: FileFlatNode) => { return _nodeData.expandable; };
 
   hasNestedChild = (_: number, nodeData: FileNode) => {return !(nodeData.type); };
+
+  getFlatIcon(node: FileFlatNode) {
+    if (!this.isExpandable(node)) {
+      return 'insert_drive_file';
+    }
+    return this.treeControl.isExpanded(node) ? 'folder_open' : 'folder';
+  }
+
+  getNestedIcon(node: FileNode) {
+    if (!this.hasNestedChild(0, node)) {
+      return 'insert_drive_file';
+    }
+    return this.nestedTreeControl.isExpanded(node) ? 'folder_open' : 'folder';
+  }
 }
