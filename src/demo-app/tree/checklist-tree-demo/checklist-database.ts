@@ -98,4 +98,9 @@ export class ChecklistDatabase {
       this.dataChange.next(this.data);
     }
   }
+
+  updateItem(node: TodoItemNode, name: string) {
+    node.item = name;
+    this.dataChange.next(this.data);
+  }
 }

@@ -95,7 +95,6 @@ export class LoadmoreDatabase {
  * @title Tree with partially loaded data
  */
 @Component({
-  moduleId: module.id,
   selector: 'tree-loadmore-example',
   templateUrl: 'tree-loadmore-example.html',
   styleUrls: ['tree-loadmore-example.css'],

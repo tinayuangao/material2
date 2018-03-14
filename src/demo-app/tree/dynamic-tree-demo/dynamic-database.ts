@@ -35,7 +35,7 @@ export class DynamicDatabase {
 
   /** Initial data from database */
   initialData(): DynamicFlatNode[] {
-    return this.rootLevelNodes.map(name => new DynamicFlatNode(name, 1, true));
+    return this.rootLevelNodes.map(name => new DynamicFlatNode(name, 0, true));
   }
 
 
@@ -85,7 +85,8 @@ export class DynamicDataSource {
       change.added.forEach((node) => this.toggleNode(node, true));
     }
     if (change.removed) {
-      change.removed.forEach((node) => this.toggleNode(node, false));
+      // Use reverse to remove from bottom to top
+      change.removed.reverse().forEach((node) => this.toggleNode(node, false));
     }
   }
 

@@ -32,12 +32,6 @@ export class ChecklistTreeDemo {
   /** Map from nested node to flattened node. This helps us to keep the same object for selection */
   nestedNodeMap: Map<TodoItemNode, TodoItemFlatNode> = new Map<TodoItemNode, TodoItemFlatNode>();
 
-  /** A selected parent node to be inserted */
-  selectedParent: TodoItemFlatNode | null = null;
-
-  /** The new item's name */
-  newItemName: string = '';
-
   treeControl: FlatTreeControl<TodoItemFlatNode>;
 
   treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
@@ -68,11 +62,13 @@ export class ChecklistTreeDemo {
 
   hasChild = (_: number, _nodeData: TodoItemFlatNode) => { return _nodeData.expandable; };
 
+  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => { return _nodeData.item === ''; };
+
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
    */
   transformer = (node: TodoItemNode, level: number) => {
-    let flatNode = this.nestedNodeMap.has(node)
+    let flatNode = this.nestedNodeMap.has(node) && this.nestedNodeMap.get(node)!.item === node.item
       ? this.nestedNodeMap.get(node)!
       : new TodoItemFlatNode();
     flatNode.item = node.item;
@@ -105,16 +101,16 @@ export class ChecklistTreeDemo {
         : this.checklistSelection.deselect(...descendants);
   }
 
-  /** Insert a new item with name `newItemName` to be under category `selectedParent`. */
-  addNode() {
-    if (this.selectedParent) {
-      const parentNode = this.flatNodeMap.get(this.selectedParent);
-      this.database.insertItem(parentNode!, this.newItemName);
-    }
+  /** Select the category so we can insert the new item. */
+  addNewItem(node: TodoItemFlatNode) {
+    const parentNode = this.flatNodeMap.get(node);
+    this.database.insertItem(parentNode!, '');
+    this.treeControl.expand(node);
   }
 
-  /** Select the category so we can insert the new item. */
-  setParent(node: TodoItemFlatNode) {
-    this.selectedParent = node;
+  /** Save the node to database */
+  saveNode(node: TodoItemFlatNode, itemValue: string) {
+    const nestedNode = this.flatNodeMap.get(node);
+    this.database.updateItem(nestedNode!, itemValue);
   }
 }
