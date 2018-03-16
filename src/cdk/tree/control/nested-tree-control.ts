@@ -34,7 +34,8 @@ export class NestedTreeControl<T> extends BaseTreeControl<T> {
   getDescendants(dataNode: T): T[] {
     const descendants = [];
     this._getDescendants(descendants, dataNode);
-    return descendants;
+    // Remove the node itself
+    return descendants.slice(1);
   }
 
   /** A helper function to get descendants recursively. */

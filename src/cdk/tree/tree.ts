@@ -263,27 +263,27 @@ export class CdkTree<T> implements CollectionViewer, OnInit, OnDestroy {
 
     if (dataStream) {
       this._dataSubscription = dataStream.pipe(takeUntil(this._onDestroy))
-        .subscribe(data => this._renderNodeChanges(data));
+        .subscribe(data => this.renderNodeChanges(data));
     } else {
       throw getTreeNoValidDataSourceError();
     }
   }
 
   /** Check for changes made in the data and render each change (node added/removed/moved). */
-  private _renderNodeChanges(dataNodes: T[]) {
-    const changes = this._dataDiffer.diff(dataNodes);
+  renderNodeChanges(data: T[], dataDiffer?: IterableDiffer<T>, viewContainer?: ViewContainerRef) {
+    const changes = (dataDiffer ? dataDiffer : this._dataDiffer).diff(data);
     if (!changes) { return; }
 
-    const viewContainer = this._nodeOutlet.viewContainer;
+    const container = viewContainer ? viewContainer : this._nodeOutlet.viewContainer;
     changes.forEachOperation(
       (item: IterableChangeRecord<T>, adjustedPreviousIndex: number, currentIndex: number) => {
         if (item.previousIndex == null) {
-          this.insertNode(dataNodes[currentIndex], currentIndex);
+          this.insertNode(data[currentIndex], currentIndex, container);
         } else if (currentIndex == null) {
-          viewContainer.remove(adjustedPreviousIndex);
+          container.remove(adjustedPreviousIndex);
         } else {
-          const view = viewContainer.get(adjustedPreviousIndex);
-          viewContainer.move(view!, currentIndex);
+          const view = container.get(adjustedPreviousIndex);
+          container.move(view!, currentIndex);
         }
       });
   }
