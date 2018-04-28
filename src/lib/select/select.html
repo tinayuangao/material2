@@ -1,7 +1,14 @@
-<div cdk-overlay-origin
-     class="mat-select-trigger"
-     aria-hidden="true"
+<div role="combobox"
      (click)="toggle()"
+     tabindex="0"
+     aria-required="false"
+     aria-autocomplete="none"
+     [attr.aria-owns]="_listboxId"
+     [attr.aria-expanded]="panelOpen"
+     [attr.aria-activedescendant]="activeDescendantId"
+     [attr.aria-labelledby]="'mat-select-label sval'"
+     cdk-overlay-origin
+     class="mat-select-trigger"
      #origin="cdkOverlayOrigin"
      #trigger>
   <div class="mat-select-value" [ngSwitch]="empty">
@@ -46,6 +53,35 @@
       [@fadeInContent]="'showing'"
       (@fadeInContent.done)="_onFadeInDone()">
       <ng-content></ng-content>
+      <div aria-hidden="true"  role="presentation" class="mat-select-panel" *ngIf="panelOpen">
+        <input matInput *ngIf="optionFilterable"
+               (input)="filter(filterInput.value)" #filterInput/>
+        <ng-container matOptionOutlet></ng-container>
+      </div>
     </div>
   </div>
 </ng-template>
+
+<!-- Listbox and options are always in the DOM and do not use the user's template.
+     The listbox must be `display: none` while the combobox is not expanded so that
+     its activedescendant doesn't take effect. -->
+<div role="listbox"  [id]="_listboxId"
+     [style.display]="panelOpen ? 'block' : 'none'">
+  <div role="option" *ngFor="let opt of filteredData; let index = index"
+       id="{{_listboxId}}-opt-{{index}}"
+       aria-disabled="false"
+       [attr.aria-selected]="_selectionModel.isSelected(opt)">
+    {{optionTextTransform(opt)}} class="cdk-visually-hidden"
+  </div>
+</div>
+
+
+<!-- Workaround for VoiceOver + Safari not correctly supporting activedescendant https://bugs.webkit.org/show_bug.cgi?id=167671 -->
+<!-- Real implementation will use cdk LiveAnnouncer -->
+<!--<div class="cdk-visually-hidden" aria-live="polite" aria-atomic="false">-->
+  <!--{{announceText}}-->
+<!--</div>-->
+<!--
+  Notes:
+  * VoiceOver + Safari doesn't say anything after you select an option.
+-->

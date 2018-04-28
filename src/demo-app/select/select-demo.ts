@@ -29,7 +29,7 @@ export class SelectDemo {
   currentPokemon: string[];
   currentPokemonFromGroup: string;
   currentDigimon: string;
-  latestChangeEvent: MatSelectChange;
+  latestChangeEvent: MatSelectChange<{}>;
   floatLabel = 'auto';
   foodControl = new FormControl('pizza-1');
   topHeightCtrl = new FormControl(0);
@@ -135,4 +135,12 @@ export class SelectDemo {
   compareByReference(o1: any, o2: any) {
     return o1 === o2;
   }
+
+  drinkTextTransform = (opt: {viewValue: string}) => opt.viewValue;
+
+  filterFunction = (opt: {viewValue: string}, filterText: string) => {
+    return opt.viewValue.indexOf(filterText) > -1;
+  };
+
+  currentDrink2: string;
 }

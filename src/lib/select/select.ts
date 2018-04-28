@@ -14,6 +14,7 @@ import {
   DOWN_ARROW,
   END,
   ENTER,
+  ESCAPE,
   HOME,
   LEFT_ARROW,
   RIGHT_ARROW,
@@ -52,7 +53,10 @@ import {
   QueryList,
   Self,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
+  ViewChildren,
+  ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
 import {ControlValueAccessor, FormGroupDirective, NgControl, NgForm} from '@angular/forms';
@@ -138,10 +142,10 @@ export const MAT_SELECT_SCROLL_STRATEGY_PROVIDER = {
 };
 
 /** Change event object that is emitted when the select value has changed. */
-export class MatSelectChange {
+export class MatSelectChange<T> {
   constructor(
     /** Reference to the select that emitted the change event. */
-    public source: MatSelect,
+    public source: MatSelect<T>,
     /** Current value of the select that emitted the event. */
     public value: any) { }
 }
@@ -167,6 +171,17 @@ export const _MatSelectMixinBase = mixinDisableRipple(
 })
 export class MatSelectTrigger {}
 
+/** Directive to capture the template for displayed options. */
+@Directive({selector: '[matOptionDef]'})
+export class MatOptionDef {
+  constructor(public templateRef: TemplateRef<any>) { }
+}
+
+/** Directive to mark where options should be projected. */
+@Directive({selector: '[matOptionOutlet]'})
+export class MatOptionOutlet {
+  constructor(public viewContainerRef: ViewContainerRef) { }
+}
 
 @Component({
   moduleId: module.id,
@@ -207,9 +222,49 @@ export class MatSelectTrigger {}
     {provide: MAT_OPTION_PARENT_COMPONENT, useExisting: MatSelect}
   ],
 })
-export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, OnChanges,
+export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentInit, OnChanges,
     OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable, HasTabIndex,
     MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
+
+  get activeDescendantId() {
+    return this._keyManager.activeItemIndex
+      ? `${this._listboxId}-opt-${this._keyManager.activeItemIndex}`
+      : null;
+  }
+
+  filter(filterText: string) {
+    if (this.optionFilterable) {
+      this.filteredData = this.optionData.filter(data =>
+        this.filterFunction(data, filterText));
+    } else {
+      this.filteredData = this.optionData;
+    }
+  }
+
+  ngAfterViewInit() {
+    this.optionOutlet.changes.subscribe(() => {
+      this.renderPanel();
+    });
+  }
+
+  renderPanel() {
+    // In the real implementation this will use the `Overlay` service.
+    Promise.resolve().then(() => {
+      if (this.panelOpen && this.optionOutlet.first) {
+        this.optionOutlet.first.viewContainerRef.clear();
+        for (let i = 0; i < this.filteredData.length; i++) {
+          this.optionOutlet.first.viewContainerRef.createEmbeddedView(
+            this.optionTemplate.templateRef,
+            {
+              $implicit: this.filteredData[i],
+              option: this.filteredData[i],
+              index: i,
+            });
+        }
+      }
+    });
+  }
+
   /** Whether or not the overlay panel is open. */
   private _panelOpen = false;
 
@@ -233,6 +288,9 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Emits whenever the component is destroyed. */
   private readonly _destroy = new Subject<void>();
+
+  /** Unique id for the select list. */
+  _listboxId = `${this._uid}-list`;
 
   /** The last measured value for the trigger's client bounding rect. */
   _triggerRect: ClientRect;
@@ -304,6 +362,9 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
   /** A name for this control that can be used by `mat-form-field`. */
   controlType = 'mat-select';
 
+  /** Filtered data options. If there's no filter function, it's the same as `optionData`. */
+  filteredData: T[] = [];
+
   /** Trigger that opens the select. */
   @ViewChild('trigger') trigger: ElementRef;
 
@@ -324,6 +385,41 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** User-supplied override of the trigger element. */
   @ContentChild(MatSelectTrigger) customTrigger: MatSelectTrigger;
+
+  /** User-defined option template. */
+  @ContentChild(MatOptionDef) optionTemplate: MatOptionDef;
+
+  /** The option outlet to render the option data. */
+  @ViewChildren(MatOptionOutlet) optionOutlet: QueryList<MatOptionOutlet>;
+
+  /**
+   * Transform function to tranform data object to string for accessiblity
+   */
+  @Input()
+  optionTextTransform: (T) => string = o => `${o}`;
+
+  /**
+   * The filter function to filter the option list.
+   * The input box for filter only display when there's a filter function.
+   */
+  @Input()
+  filterFunction: ((T, string) => boolean) =   (opt: {}, filterText: string) => {
+    return `${opt}`.indexOf(filterText) > -1;
+  };
+
+  /** Whether we have a input box to filter the options. */
+  @Input()
+  optionFilterable: boolean;
+
+  /** Options data for template style select list. */
+  @Input()
+  get optionData(): T[] { return this._optionData; }
+  set optionData(value: T[]) {
+    this._optionData = value;
+    this.filteredData = this._optionData;
+    this.stateChanges.next();
+  }
+  private _optionData: T[] = [];
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -429,8 +525,8 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       this.openedChange.pipe(filter(o => !o), map(() => {}));
 
    /** Event emitted when the selected value has been changed by the user. */
-  @Output() readonly selectionChange: EventEmitter<MatSelectChange> =
-      new EventEmitter<MatSelectChange>();
+  @Output() readonly selectionChange: EventEmitter<MatSelectChange<T>> =
+      new EventEmitter<MatSelectChange<T>>();
 
   /**
    * Event that emits whenever the raw value of the select changes. This is here primarily
@@ -508,7 +604,9 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Opens the overlay panel. */
   open(): void {
-    if (this.disabled || !this.options || !this.options.length || this._panelOpen) {
+    const useTemplate = this.optionTemplate && this.optionData && this.optionData.length;
+    const hasOptions = (this.options && this.options.length) || useTemplate;
+    if (this.disabled || !hasOptions || this._panelOpen) {
       return;
     }
 
@@ -536,6 +634,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
   close(): void {
     if (this._panelOpen) {
       this._panelOpen = false;
+      this.filteredData = this._optionData; // Reset options
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
       this._onTouched();
@@ -552,6 +651,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     if (this.options) {
       this._setSelectionByValue(value);
     }
+    this._value = value;
   }
 
   /**
@@ -600,6 +700,14 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** The value displayed in the trigger. */
   get triggerValue(): string {
+    const value = this.ngControl ? this.ngControl.value : this._value;
+    if (this.optionTextTransform && this.optionTemplate && value) {
+      if (Array.isArray(value)) {
+        return value.map(o => this.optionTextTransform(o)).join(', ');
+      }
+      return this.optionTextTransform(value);
+    }
+
     if (this.empty) {
       return '';
     }
@@ -655,7 +763,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     if (keyCode === HOME || keyCode === END) {
       event.preventDefault();
       keyCode === HOME ? manager.setFirstItemActive() : manager.setLastItemActive();
-    } else if (isArrowKey && event.altKey) {
+    } else if (isArrowKey && event.altKey || keyCode === ESCAPE) {
       // Close the select on ALT + arrow key to match the native <select>
       event.preventDefault();
       this.close();
@@ -738,6 +846,11 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Whether the select has a value. */
   get empty(): boolean {
+    const value = this.ngControl ? this.ngControl.value : this._value;
+    if (this.optionTemplate) {
+      return !!value;
+    }
+
     return !this._selectionModel || this._selectionModel.isEmpty();
   }
 
@@ -845,7 +958,6 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
   /** Drops current option subscriptions and IDs and resets from scratch. */
   private _resetOptions(): void {
     const changedOrDestroyed = merge(this.options.changes, this._destroy);
-
     this.optionSelectionChanges
       .pipe(takeUntil(changedOrDestroyed), filter(event => event.isUserInput))
       .subscribe(event => {

@@ -115,3 +115,42 @@ $mat-select-placeholder-arrow-space: 2 * ($mat-select-arrow-size + $mat-select-a
     display: block;
   }
 }
+
+//.mat-select {
+//  display: block;
+//  border: 1px solid black;
+//  height: 50px;
+//  width: 200px;
+//  font-size: 36px;
+//  text-align: center;
+//  cursor: pointer;
+//}
+//
+//.cdk-visually-hidden {
+//  border: 0;
+//  clip: rect(0 0 0 0);
+//  height: 1px;
+//  margin: -1px;
+//  overflow: hidden;
+//  padding: 0;
+//  position: absolute;
+//  width: 1px;
+//  outline: 0;
+//  -webkit-appearance: none;
+//  -moz-appearance: none;
+//}
+//
+//.mat-option {
+//  display: block;
+//}
+//
+//.mat-select-panel {
+//  position: absolute;
+//  box-shadow: rgba(0, 0, 0, 0.118) 0 10px 15px, rgba(0, 0, 0, 0.239) 0 5px 10px;
+//  width: 200px;
+//  max-height: 100px;
+//  overflow: auto;
+//  top: 130px;
+//  left: 230px;
+//  background: white;
+//}

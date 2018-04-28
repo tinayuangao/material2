@@ -144,6 +144,22 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl">
     </mat-card-content>
   </mat-card>
 
+  <mat-card>
+    <mat-card-subtitle>With template</mat-card-subtitle>
+    <mat-card-content>
+      <mat-form-field [color]="drinksTheme">
+        <mat-label>Drink</mat-label>
+        <mat-select [optionData]="drinks" [optionFilterable]="true" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2">
+          <mat-option #o *matOptionDef="let option; let index = index" [value]="option.value">
+            <span [class.my-option-selected]="o.selected">
+              {{option.viewValue}}
+            </span>
+          </mat-option>
+        </mat-select>
+        <p> Value: {{ currentDrink2 }} </p>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
   <div *ngIf="showSelect">
     <mat-card>
       <mat-card-subtitle>formControl</mat-card-subtitle>
