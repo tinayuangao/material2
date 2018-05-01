@@ -1,17 +1,23 @@
-<div role="combobox"
+<div [attr.role]="'combobox'"
      (click)="toggle()"
-     tabindex="0"
+     [id]="id"
+     [attr.tabindex]="tabIndex"
+     [attr.aria-label]="_ariaLabel"
+     [attr.aria-labelledby]="ariaLabelledby"
+     [attr.aria-required]="required.toString()"
+     [attr.aria-disabled]="disabled.toString()"
+     [attr.aria-invalid]="errorState"
+     [attr.aria-owns]="optionIds"
+     [attr.aria-describedby]="_ariaDescribedby || null"
+     [attr.aria-activedescendant]="_getAriaActiveDescendant()"
+     [attr.aria-expanded]="panelOpen"
      aria-required="false"
      aria-autocomplete="none"
-     [attr.aria-owns]="_listboxId"
-     [attr.aria-expanded]="panelOpen"
-     [attr.aria-activedescendant]="activeDescendantId"
-     [attr.aria-labelledby]="'mat-select-label sval'"
      cdk-overlay-origin
      class="mat-select-trigger"
      #origin="cdkOverlayOrigin"
      #trigger>
-  <div class="mat-select-value" [ngSwitch]="empty">
+  <div class="mat-select-value" [ngSwitch]="empty" role="textbox" [id]="_labelId">
     <span class="mat-select-placeholder" *ngSwitchCase="true">{{placeholder || '\u00A0'}}</span>
     <span class="mat-select-value-text" *ngSwitchCase="false" [ngSwitch]="!!customTrigger">
       <span *ngSwitchDefault>{{triggerValue}}</span>
@@ -65,13 +71,17 @@
 <!-- Listbox and options are always in the DOM and do not use the user's template.
      The listbox must be `display: none` while the combobox is not expanded so that
      its activedescendant doesn't take effect. -->
-<div role="listbox"  [id]="_listboxId"
-     [style.display]="panelOpen ? 'block' : 'none'">
+<div role="listbox"
+     [id]="_listboxId"
+     class="cdk-visually-hidden"
+     [attr.aria-multiselectable]="multiple"
+     [style.display]="panelOpen ? 'block' : 'none'"
+     *ngIf="optionTemplate">
   <div role="option" *ngFor="let opt of filteredData; let index = index"
        id="{{_listboxId}}-opt-{{index}}"
        aria-disabled="false"
-       [attr.aria-selected]="_selectionModel.isSelected(opt)">
-    {{optionTextTransform(opt)}} class="cdk-visually-hidden"
+       [attr.aria-selected]="_optionSelectionModel.isSelected(opt)">
+    {{optionTextTransform(opt)}}
   </div>
 </div>
 

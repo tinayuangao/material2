@@ -158,6 +158,7 @@ export class MatOption implements AfterViewChecked, OnDestroy {
 
   /** Sets focus onto this option. */
   focus(): void {
+  console.log(`focus`);
     const element = this._getHostElement();
 
     if (typeof element.focus === 'function') {

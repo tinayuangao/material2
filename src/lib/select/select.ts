@@ -193,18 +193,18 @@ export class MatOptionOutlet {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    'role': 'listbox',
-    '[attr.id]': 'id',
-    '[attr.tabindex]': 'tabIndex',
-    '[attr.aria-label]': '_ariaLabel',
-    '[attr.aria-labelledby]': 'ariaLabelledby',
-    '[attr.aria-required]': 'required.toString()',
-    '[attr.aria-disabled]': 'disabled.toString()',
-    '[attr.aria-invalid]': 'errorState',
-    '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
-    '[attr.aria-multiselectable]': 'multiple',
-    '[attr.aria-describedby]': '_ariaDescribedby || null',
-    '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
+    '[attr.role]': 'optionTemplate ? null : "listbox"',
+    // '[attr.id]': 'id',
+    // '[attr.tabindex]': 'tabIndex',
+    // '[attr.aria-label]': '_ariaLabel',
+    // '[attr.aria-labelledby]': 'ariaLabelledby',
+    // '[attr.aria-required]': 'required.toString()',
+    // '[attr.aria-disabled]': 'disabled.toString()',
+    // '[attr.aria-invalid]': 'errorState',
+    // '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
+    '[attr.aria-multiselectable]': 'optionTemplate ? null : multiple',
+    // '[attr.aria-describedby]': '_ariaDescribedby || null',
+    // '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
     '[class.mat-select-disabled]': 'disabled',
     '[class.mat-select-invalid]': 'errorState',
     '[class.mat-select-required]': 'required',
@@ -226,12 +226,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable, HasTabIndex,
     MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
 
-  get activeDescendantId() {
-    return this._keyManager.activeItemIndex
-      ? `${this._listboxId}-opt-${this._keyManager.activeItemIndex}`
-      : null;
-  }
-
+  filterText: string = '';
   filter(filterText: string) {
     if (this.optionFilterable) {
       this.filteredData = this.optionData.filter(data =>
@@ -292,6 +287,9 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   /** Unique id for the select list. */
   _listboxId = `${this._uid}-list`;
 
+  /** Unique id for the selected value label. */
+  _labelId = `${this._uid}-label`;
+
   /** The last measured value for the trigger's client bounding rect. */
   _triggerRect: ClientRect;
 
@@ -303,6 +301,9 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   /** Deals with the selection logic. */
   _selectionModel: SelectionModel<MatOption>;
+
+  /** Delas with the selection data options. */
+  _optionSelectionModel: SelectionModel<T>;
 
   /** Manages keyboard events for options in the panel. */
   _keyManager: ActiveDescendantKeyManager<MatOption>;
@@ -441,7 +442,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   @Input()
   get multiple(): boolean { return this._multiple; }
   set multiple(value: boolean) {
-    if (this._selectionModel) {
+    if (this._selectionModel || this._optionSelectionModel) {
       throw getMatSelectDynamicMultipleError();
     }
 
@@ -488,7 +489,15 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   @Input('aria-label') ariaLabel: string = '';
 
   /** Input that can be used to specify the `aria-labelledby` attribute. */
-  @Input('aria-labelledby') ariaLabelledby: string;
+  @Input('aria-labelledby')
+  get ariaLabelledby(): string {
+    return `${this._ariaLabelledby} ${this._labelId}`;
+  }
+  set ariaLabelledby(value: string) {
+    this._ariaLabelledby = value;
+  }
+  _ariaLabelledby: string = '';
+
 
   /** An object used to control when error messages are shown. */
   @Input() errorStateMatcher: ErrorStateMatcher;
@@ -565,6 +574,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   ngOnInit() {
     this._selectionModel = new SelectionModel<MatOption>(this.multiple, undefined, false);
+    this._optionSelectionModel = new SelectionModel<T>(this.multiple, undefined, false);
     this.stateChanges.next();
   }
 
@@ -647,9 +657,12 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    *
    * @param value New value to be written to the model.
    */
-  writeValue(value: any): void {
+  writeValue(value: T): void {
     if (this.options) {
       this._setSelectionByValue(value);
+    }
+    if (this.optionData) {
+      this._setSelectionOptionByValue(value);
     }
     this._value = value;
   }
@@ -698,18 +711,24 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     return this.multiple ? this._selectionModel.selected : this._selectionModel.selected[0];
   }
 
+  /** The current selected option data's value */
+  get selectedValue(): any {
+    return this.multiple
+      ? this._optionSelectionModel.selected
+      : this._optionSelectionModel.selected[0];
+  }
+
   /** The value displayed in the trigger. */
   get triggerValue(): string {
-    const value = this.ngControl ? this.ngControl.value : this._value;
-    if (this.optionTextTransform && this.optionTemplate && value) {
-      if (Array.isArray(value)) {
-        return value.map(o => this.optionTextTransform(o)).join(', ');
-      }
-      return this.optionTextTransform(value);
-    }
-
     if (this.empty) {
       return '';
+    }
+
+    if (this.optionTemplate) {
+      return this.multiple
+          ? this._optionSelectionModel.selected
+              .map(option => this.optionTextTransform(option)).join(', ')
+          : this.optionTextTransform(this._optionSelectionModel.selected[0]);
     }
 
     if (this._multiple) {
@@ -846,19 +865,19 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   /** Whether the select has a value. */
   get empty(): boolean {
-    const value = this.ngControl ? this.ngControl.value : this._value;
-    if (this.optionTemplate) {
-      return !!value;
-    }
-
-    return !this._selectionModel || this._selectionModel.isEmpty();
+    return (!this._selectionModel || this._selectionModel.isEmpty()) &&
+        (!this._optionSelectionModel || this._optionSelectionModel.isEmpty());
   }
 
   private _initializeSelection(): void {
     // Defer setting the value in order to avoid the "Expression
     // has changed after it was checked" errors from Angular.
     Promise.resolve().then(() => {
-      this._setSelectionByValue(this.ngControl ? this.ngControl.value : this._value);
+      const value = this.ngControl ? this.ngControl.value : this._value;
+      this._setSelectionByValue(value);
+      if (this.optionTemplate) {
+        this._setSelectionOptionByValue(value);
+      }
     });
   }
 
@@ -872,9 +891,9 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
         throw getMatSelectNonArrayValueError();
       }
 
-      this._clearSelection();
+      this._clearSelection(); // MatOption
       value.forEach((currentValue: any) => this._selectValue(currentValue, isUserInput));
-      this._sortValues();
+      this._sortValues(); // MatOption
     } else {
       this._clearSelection();
 
@@ -883,11 +902,22 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
       // Shift focus to the active item. Note that we shouldn't do this in multiple
       // mode, because we don't know what option the user interacted with last.
       if (correspondingOption) {
-        this._keyManager.setActiveItem(correspondingOption);
+        this._keyManager.setActiveItem(correspondingOption); // MatOption
       }
     }
 
     this._changeDetectorRef.markForCheck();
+  }
+
+  /** Sets the selected option data in its selection model. */
+  private _setSelectionOptionByValue(value: any | any[]): void {
+    if (!this._optionSelectionModel || !this.optionTemplate) { return; }
+    this._optionSelectionModel.clear();
+    if (this.multiple && value && Array.isArray(value)) {
+      value.forEach((currentValue: any) => this._optionSelectionModel.select(currentValue));
+    } else if (value) {
+      this._optionSelectionModel.select(value as T);
+    }
   }
 
   /**
@@ -988,6 +1018,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     // TODO(crisbeto): handle blank/null options inside multi-select.
     if (this.multiple) {
       this._selectionModel.toggle(option);
+      this._optionSelectionModel.toggle(option.value);
       this.stateChanges.next();
       wasSelected ? option.deselect() : option.select();
       this._keyManager.setActiveItem(option);
@@ -1005,6 +1036,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
         this._propagateChanges(option.value);
       } else {
         this._selectionModel.select(option);
+        this._optionSelectionModel.select(option.value);
         this.stateChanges.next();
       }
     }
@@ -1035,10 +1067,15 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   private _propagateChanges(fallbackValue?: any): void {
     let valueToEmit: any = null;
 
-    if (this.multiple) {
-      valueToEmit = (this.selected as MatOption[]).map(option => option.value);
+    if (this.optionTemplate) {
+      valueToEmit =
+          this.selectedValue ? this.selectedValue : fallbackValue;
     } else {
-      valueToEmit = this.selected ? (this.selected as MatOption).value : fallbackValue;
+      if (this.multiple) {
+        valueToEmit = (this.selected as MatOption[]).map(option => option.value);
+      } else {
+        valueToEmit = this.selected ? (this.selected as MatOption).value : fallbackValue;
+      }
     }
 
     this._value = valueToEmit;
@@ -1140,6 +1177,10 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     return Math.min(Math.max(0, optimalScrollPosition), maxScroll);
   }
 
+  get optionIds() {
+    return this.optionTemplate ? this._listboxId : (this.panelOpen ? this._optionIds : null);
+  }
+
   /** Returns the aria-label of the select component. */
   get _ariaLabel(): string | null {
     // If an ariaLabelledby value has been set, the select should not overwrite the
@@ -1150,7 +1191,9 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   /** Determines the `aria-activedescendant` to be set on the host. */
   _getAriaActiveDescendant(): string | null {
     if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
-      return this._keyManager.activeItem.id;
+      return this.optionTemplate
+          ? `${this._listboxId}-opt-${this._keyManager.activeItemIndex}`
+          : this._keyManager.activeItem.id;
     }
 
     return null;
