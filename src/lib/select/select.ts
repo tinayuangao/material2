@@ -196,11 +196,11 @@ export class MatOptionGroupDef {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[attr.role]': 'optionTemplate ? null : "listbox"',
+    // '[attr.role]': 'optionTemplate ? null : "listbox"',
     // '[attr.id]': 'id',
     // '[attr.tabindex]': 'tabIndex',
-    '[attr.aria-label]': 'optionTemplate ? null : _ariaLabel',
-    '[attr.aria-labelledby]': 'ariaLabelledby',
+    // '[attr.aria-label]': 'optionTemplate ? null : _ariaLabel',
+    // '[attr.aria-labelledby]': 'optionTemplate ? null : ariaLabelledby',
     // '[attr.aria-required]': 'required.toString()',
     // '[attr.aria-disabled]': 'disabled.toString()',
     // '[attr.aria-invalid]': 'errorState',
@@ -887,6 +887,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
     if (!this.disabled && !this.panelOpen) {
       this._onTouched();
+      console.log(`this touched`);
       this._changeDetectorRef.markForCheck();
       this.stateChanges.next();
     }
@@ -1140,11 +1141,15 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Emits change event to set the model value. */
   private _propagateChanges(fallbackValue?: any): void {
-    let valueToEmit = this.selectedOptionValue || this.optionValueAccessor(fallbackValue);
+    let valueToEmit = this.selectedOptionValue ||
+        (typeof fallbackValue !== 'undefined'
+            ? this.optionValueAccessor(fallbackValue)
+            : fallbackValue);
     let optionDataToEmit = this.selectedValue || fallbackValue;
     this._value = valueToEmit;
     this.valueChange.emit(valueToEmit);
     this._onChange(valueToEmit);
+    console.log(`on change`);
     this.selectionChange.emit(new MatSelectChange(this, optionDataToEmit));
     this._changeDetectorRef.markForCheck();
   }

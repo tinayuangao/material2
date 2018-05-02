@@ -2,7 +2,7 @@
      (click)="toggle()"
      [id]="id"
      [attr.tabindex]="tabIndex"
-     [attr.aria-label]="optionTemplate ? _ariaLabel : null"
+     [attr.aria-label]="_ariaLabel"
      [attr.aria-labelledby]="ariaLabelledby"
      [attr.aria-required]="required.toString()"
      [attr.aria-disabled]="disabled.toString()"
