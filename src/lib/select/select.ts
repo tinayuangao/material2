@@ -1,5 +1,5 @@
 /**
- * @license
+_:  * @license
  * Copyright Google LLC All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
@@ -73,6 +73,7 @@ import {
   MatOptgroup,
   MatOption,
   MatOptionOutlet,
+  MatGroupOptionOutlet,
   MatOptionSelectionChange,
   mixinDisabled,
   mixinDisableRipple,
@@ -144,10 +145,10 @@ export const MAT_SELECT_SCROLL_STRATEGY_PROVIDER = {
 };
 
 /** Change event object that is emitted when the select value has changed. */
-export class MatSelectChange<T> {
+export class MatSelectChange<T=any, F=any> {
   constructor(
     /** Reference to the select that emitted the change event. */
-    public source: MatSelect<T>,
+    public source: MatSelect<T, F>,
     /** Current value of the select that emitted the event. */
     public value: any) { }
 }
@@ -224,13 +225,13 @@ export class MatOptionGroupDef {
     {provide: MAT_OPTION_PARENT_COMPONENT, useExisting: MatSelect}
   ],
 })
-export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements AfterContentInit,
+export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements AfterContentInit,
     AfterViewInit, OnChanges, OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable,
     HasTabIndex, MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
 
   ngAfterViewInit() {
     this.optionOutlet.changes.subscribe(() => {
-      this.renderPanel();
+      this.renderOptions();
     });
 
     this.groupOptionOutlet.changes.subscribe(() => {
@@ -241,51 +242,54 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
   renderGroupOptions() {
     // In the real implementation this will use the `Overlay` service.
     Promise.resolve().then(() => {
-      if (this.panelOpen && this.groupOptionOutlet.length) {
-
-        if (this.optionDataGroups) {
-          for (let i = 0; i < this.optionDataGroups.length; i++) {
-            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
-              this.optionGroupTemplate.templateRef,
-              {
-                $implicit: this.optionDataGroups[i],
-                group: this.optionDataGroups[i],
-                index: i,
-              });
-          }
+      if (this.panelOpen && this.groupOptionOutlet.length && this.optionDataGroups) {
+        const outlets = this.groupOptionOutlet.toArray();
+        for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
+          outlets[i].viewContainerRef.clear();
+          const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
+          options.forEach((option, j) => {
+            this._renderOption(outlets[i].viewContainerRef, option, j);
+          });
         }
       }
     });
   }
 
-  renderPanel() {
+  renderOptions() {
     // In the real implementation this will use the `Overlay` service.
     Promise.resolve().then(() => {
       if (this.panelOpen && this.optionOutlet.first) {
         this.optionOutlet.first.viewContainerRef.clear();
         if (this.optionData) {
           for (let i = 0; i < this.optionData.length; i++) {
-            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
-              this.optionTemplate.templateRef,
-              {
-                $implicit: this.optionData[i],
-                option: this.optionData[i],
-                index: i,
-              });
+            this._renderOption(this.optionOutlet.first.viewContainerRef, this.optionData[i], i);
           }
         } else if (this.optionDataGroups) {
           for (let i = 0; i < this.optionDataGroups.length; i++) {
-            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
-              this.optionGroupTemplate.templateRef,
-              {
-                $implicit: this.optionDataGroups[i],
-                group: this.optionDataGroups[i],
-                index: i,
-              });
+            this._renderGroup(this.optionOutlet.first.viewContainerRef, this.optionDataGroups[i], i);
           }
         }
       }
     });
+  }
+
+  private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
+    viewContainerRef.createEmbeddedView(
+      this.optionGroupTemplate.templateRef,
+      { 
+        $implicit: group,
+        group: group,
+        index: index,
+      }); 
+  }
+
+  private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number) {
+    viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
+      {
+        $implicit: option,
+        option: option,
+        index: index,
+      });
   }
 
   /** Whether or not the overlay panel is open. */
@@ -412,17 +416,24 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
   /** User-defined option template. */
   @ContentChild(MatOptionDef) optionTemplate: MatOptionDef;
 
+  /** User-defined option group template. */
+  @ContentChild(MatOptionGroupDef) optionGroupTemplate: MatOptionGroupDef;
+
   /** The option outlet to render the option data. */
   @ViewChildren(MatOptionOutlet) optionOutlet: QueryList<MatOptionOutlet>;
 
   /** The option outlet to render the options inside an option group. */
-  @ContentChildren(MatGroupOptionOutlet) groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
+  @ContentChildren(MatGroupOptionOutlet, { descendants: true }) groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
 
   /**
    * Transform function to tranform data object to string for accessiblity
    */
   @Input()
   optionTextTransform: (T) => string = o => `${o}`;
+
+  /** Function to extract the options from option groups. */
+  @Input()
+  groupOptionsAccessor: (_: F) => T[] = _ => [];
 
   /** Options data for template style select list. */
   @Input()
@@ -435,16 +446,12 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
 
   /** Option group data for template style select. */
   @Input()
-  get optionDataGroups(): any[] { return this._optionGroups; }
-  set optionDataGroups(value: any[]) {
+  get optionDataGroups(): F[] { return this._optionDataGroups; }
+  set optionDataGroups(value: F[]) {
     this._optionDataGroups = value;
     this.stateChanges.next();
   }
-  private _optionDataGroups: any[];
-
-  /** Function to extract the options from option groups. */
-  @Input()
-  optionsForGroup: (any) => T[];
+  private _optionDataGroups: F[];
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -638,7 +645,8 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
   /** Opens the overlay panel. */
   open(): void {
     const hasOptions = (this.options && this.options.length) ||
-        (this.optionData && this.optionData.length);
+        (this.optionData && this.optionData.length) ||
+        (this.optionDataGroups && this.optionDataGroups.length);
     if (this.disabled || !hasOptions || this._panelOpen) {
       return;
     }
@@ -735,7 +743,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
 
   _updateTriggerValue() {
     if (this.empty) {
-      console.log(`emptu`, this._selectionModel)
       this._triggerValue = '';
       return;
     }
@@ -748,7 +755,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
         selectedOptions.reverse();
       }
 
-      console.log(`selected optons`, selectedOptions)
       // TODO(crisbeto): delimiter should be configurable for proper localization.
       this._triggerValue = selectedOptions.join(', ');
       return;
@@ -902,7 +908,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
    * found with the designated value, the select trigger is cleared.
    */
   private _setSelectionByValue(value: any, isUserInput = false): void {
-    console.log(`set selection by value `, value)
     if (this.multiple && value) {
       if (!Array.isArray(value)) {
         throw getMatSelectNonArrayValueError();
@@ -956,8 +961,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
   private _selectValue(value: any, isUserInput = false): MatOption | undefined {
     const correspondingOption = this._findOptionByValue(value);
 
-    console.log(`corresponding `, correspondingOption, value, this.optionTemplate);
-
     if (correspondingOption) {
       isUserInput ? correspondingOption._selectViaInteraction() : correspondingOption.select();
       if (!this.optionTemplate) { this._selectionModel.select(correspondingOption.value); }
@@ -966,7 +969,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
     }
     if (this.optionTemplate && !!value) {
       this._selectionModel.select(value);
-      console.log(`update selection model `, value)
     }
     this._updateTriggerValue();
 
@@ -979,7 +981,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
    * @param skip Option that should not be deselected.
    */
   private _clearSelection(skip?: MatOption): void {
-    console.log(`clear selection`)
     this._selectionModel.clear();
     this.options.forEach(option => {
       if (option !== skip) {
@@ -1080,7 +1081,6 @@ export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements Aft
    */
   private _sortValues(): void {
     if (this._multiple && !this.optionTemplate) {
-      console.log(`sort valuesclear`)
       this._selectionModel.clear();
 
       this.options.forEach(option => {

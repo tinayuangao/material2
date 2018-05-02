@@ -144,4 +144,6 @@ export class SelectDemo {
 
   currentDrink2: string;
   currentPokemon2: {};
+
+  pokemonOptionsFor = (group: any) => group.pokemon;
 }

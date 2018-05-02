@@ -282,9 +282,10 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field>
           <mat-label>Pokemon</mat-label>
-          <mat-select [(ngModel)]="currentPokemonFromGroup" [optionGroups]="pokemonGroup" [optionTextTransform]="drinkTextTransform">
+          <mat-select [(ngModel)]="currentPokemonFromGroup" [optionDataGroups]="pokemonGroups" [optionTextTransform]="drinkTextTransform" [groupOptionsAccessor]="pokemonOptionsFor">
             <mat-optgroup *matOptionGroupDef="let group" [label]="group.name"
-                          [disabled]="group.disabled" [options]="group.options">
+                          [disabled]="group.disabled">
+              <ng-container matGroupOptionOutlet></ng-container>
             </mat-optgroup>
             <mat-option *matOptionDef="let creature" [value]="creature">
               {{ creature.viewValue }}
