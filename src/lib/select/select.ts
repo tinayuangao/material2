@@ -289,7 +289,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         $implicit: option,
         option: option,
         index: index,
+        selected: this._selectionModel.isSelected(option)
       });
+    MatOption.mostRecentOption.value = option;
   }
 
   /** Whether or not the overlay panel is open. */
@@ -434,6 +436,10 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Function to extract the options from option groups. */
   @Input()
   groupOptionsAccessor: (_: F) => T[] = _ => [];
+
+  /** Accessor for value in optionData */
+  @Input()
+  optionValueAccessor: (T) => any = o => o;
 
   /** Options data for template style select list. */
   @Input()
@@ -738,6 +744,19 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     return this.multiple ? this._selectionModel.selected : this._selectionModel.selected[0];
   }
 
+  /** The currently selected option data. */
+  get selectedValue(): T | T[] {
+    return this.multiple ? this._selectionModel.selected : this._selectionModel.selected[0];
+  }
+
+  /** The currently selected option. */
+  get selectedOptionValue(): any {
+    if (this.empty) { return undefined; }
+    return this.multiple
+        ? this._selectionModel.selected.map(opt => this.optionValueAccessor(opt))
+        : this.optionValueAccessor(this._selectionModel.selected[0]);
+  }
+
   /** The value displayed in the trigger. */
   get triggerValue(): string { return this._triggerValue; }
 
@@ -961,7 +980,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
    * @returns Option that has the corresponding value.
    */
   private _selectValue(value: any, isUserInput = false): MatOption | undefined {
-    const correspondingOption = this._findOptionByValue(value);
+    const correspondingOptionData = this._findOptionDataByValue(value) || value;
+    const correspondingOption = this._findOptionByValue(correspondingOptionData);
 
     if (correspondingOption) {
       isUserInput ? correspondingOption._selectViaInteraction() : correspondingOption.select();
@@ -969,14 +989,36 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
       this.stateChanges.next();
     }
-    if (this.optionTemplate && !!value) {
-      this._selectionModel.select(value);
+    const optionData = this._findOptionDataByValue(value);
+    if (this.optionTemplate && !!optionData) {
+      this._selectionModel.select(optionData);
     }
     this._updateTriggerValue();
 
     return correspondingOption;
   }
 
+  private _findOptionDataByValue(value: any): T | undefined {
+    if (this.optionData) {
+      return this.optionData.find((optionData: T) => this._isOptionDataMatch(value, optionData));
+    } else if (this._optionDataGroups) {
+      return [].concat.apply([], this._optionDataGroups.map(group => this.groupOptionsAccessor(group)))
+           .find((optionData: T) => this._isOptionDataMatch(value, optionData));
+    }
+  }
+
+   private _isOptionDataMatch(value: any, optionData: T): boolean {
+    try {
+      // Treat null as a special reset value.
+        return this._compareWith(this.optionValueAccessor(optionData), value);
+    } catch (error) {
+      if (isDevMode()) {
+        // Notify developers of errors in their comparator.
+        console.warn(error);
+      }
+      return false;
+    }
+  }
 
   /**
    * Clears the select trigger and deselects every option in the list.
@@ -1098,11 +1140,12 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Emits change event to set the model value. */
   private _propagateChanges(fallbackValue?: any): void {
-    let valueToEmit = this.selected || fallbackValue;
+    let valueToEmit = this.selectedOptionValue || this.optionValueAccessor(fallbackValue);
+    let optionDataToEmit = this.selectedValue || fallbackValue;
     this._value = valueToEmit;
     this.valueChange.emit(valueToEmit);
     this._onChange(valueToEmit);
-    this.selectionChange.emit(new MatSelectChange(this, valueToEmit));
+    this.selectionChange.emit(new MatSelectChange(this, optionDataToEmit));
     this._changeDetectorRef.markForCheck();
   }
 

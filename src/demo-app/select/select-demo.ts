@@ -146,4 +146,5 @@ export class SelectDemo {
   currentPokemon2: {};
 
   pokemonOptionsFor = (group: any) => group.pokemon;
+  optionValueAccessor = (option: {value: any}) => option.value;
 }

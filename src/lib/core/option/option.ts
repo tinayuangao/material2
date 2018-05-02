@@ -91,6 +91,7 @@ export interface MatOptionBase {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
+  static mostRecentOption:  MatOption;
   private _selected = false;
   private _active = false;
   private _disabled = false;
@@ -127,7 +128,9 @@ export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
     private _element: ElementRef,
     private _changeDetectorRef: ChangeDetectorRef,
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
-    @Optional() readonly group: MatOptgroup) {}
+    @Optional() readonly group: MatOptgroup) {
+    MatOption.mostRecentOption = this;
+  }
 
   /**
    * Whether or not the option is currently active and ready to be selected.
