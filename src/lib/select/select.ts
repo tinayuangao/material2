@@ -659,7 +659,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     this._panelOpen = true;
     this._keyManager.withHorizontalOrientation(null);
     this._calculateOverlayPosition();
-    this._highlightCorrectOption();
     this._changeDetectorRef.markForCheck();
 
     // Set the font size on the panel element once it exists.
@@ -668,6 +667,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
           this.overlayDir.overlayRef.overlayElement) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
+      this._highlightCorrectOption();
     });
   }
 
@@ -880,7 +880,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     this.overlayDir.positionChange.pipe(take(1)).subscribe(() => {
       this._changeDetectorRef.detectChanges();
       this._calculateOverlayOffsetX();
+      console.log(`set native scroll top`, this._scrollTop)
       this.panel.nativeElement.scrollTop = this._scrollTop;
+      console.log(`set native scroll top`, this.panel.nativeElement.scrollTop)
     });
   }
 
@@ -1006,6 +1008,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     });
 
     this._keyManager.change.pipe(takeUntil(this._destroy)).subscribe(() => {
+      console.log(`key manager changes`, this.panel);
       if (this._panelOpen && this.panel) {
         this._scrollActiveOptionIntoView();
       } else if (!this._panelOpen && !this.multiple && this._keyManager.activeItem) {
@@ -1130,16 +1133,19 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Scrolls the active option into view. */
   private _scrollActiveOptionIntoView(): void {
-    const activeOptionIndex = this._keyManager.activeItemIndex || 0;
+    const activeOptionIndex = this._keyManager.activeItemIndex || this._getSelectedOptionIndex() || 0;
     const labelCount = _countGroupLabelsBeforeOption(activeOptionIndex, this.options,
         this.optionGroups);
 
+    console.log(`scroll acrtive option into view`, activeOptionIndex + labelCount, this._getItemHeight(), this.panel.nativeElement.scrollTop, SELECT_PANEL_MAX_HEIGHT);
     this.panel.nativeElement.scrollTop = _getOptionScrollPosition(
       activeOptionIndex + labelCount,
       this._getItemHeight(),
       this.panel.nativeElement.scrollTop,
       SELECT_PANEL_MAX_HEIGHT
     );
+    console.log(this.panel.nativeElement);
+    console.log(this.panel.nativeElement.scrollTop);
   }
 
   /** Focuses the select element. */
@@ -1148,10 +1154,30 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   }
 
   /** Gets the index of the provided option in the option list. */
-  private _getOptionIndex(option: MatOption): number | undefined {
-    return this.options.reduce((result: number, current: MatOption, index: number) => {
-      return result === undefined ? (option === current ? index : undefined) : result;
-    }, undefined);
+  private _getSelectedOptionIndex(): number | undefined {
+    if (this.empty) { return 0; }
+    const selected = Array.isArray(this.selected) ? this.selected[0] : this.selected;
+    if (this.options && this.selectedOption) {
+      console.log(`options `, this.selectedOption);
+      const option = this.selectedOption;
+      return this.options.reduce((result: number, current: MatOption, index: number) => {
+        return result === undefined ? (option === current ? index : undefined) : result;
+      }, undefined);
+    } else if (this.optionData) {
+      console.log(`option data`, selected);
+      return Math.max(this.optionData.indexOf(selected), 0);
+    } else if (this.optionDataGroups) {
+      let counter = 0;
+      let found = false;
+      this.optionDataGroups.forEach(group => {
+        const options = this.groupOptionsAccessor(group);
+        const index = options.indexOf(selected);
+        counter += found ? 0 : (index < 0 ? options.length : index);
+        found = found || index >= 0;
+      });
+      console.log(`counter`, counter);
+      return counter;
+    }
   }
 
   /** Calculates the scroll position and x- and y-offsets of the overlay panel. */
@@ -1165,8 +1191,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     const maxScroll = scrollContainerHeight - panelHeight;
 
     // If no value is selected we open the popup to the first item.
-    let selectedOptionOffset =
-        this.empty ? 0 : this._getOptionIndex(this.selectedOption!)!;
+    let selectedOptionOffset = this._getSelectedOptionIndex()!;
+    console.log(selectedOptionOffset);
 
     selectedOptionOffset += _countGroupLabelsBeforeOption(selectedOptionOffset, this.options,
         this.optionGroups);
@@ -1176,6 +1202,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     const scrollBuffer = panelHeight / 2;
     this._scrollTop = this._calculateOverlayScroll(selectedOptionOffset, scrollBuffer, maxScroll);
     this._offsetY = this._calculateOverlayOffsetY(selectedOptionOffset, scrollBuffer, maxScroll);
+    console.log(`offset Y, scrolltop`, this._offsetY, this._scrollTop, scrollBuffer, maxScroll)
 
     this._checkOverlayWithinViewport(maxScroll);
   }
@@ -1397,7 +1424,16 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Calculates the amount of items in the select. This includes options and group labels. */
   private _getItemCount(): number {
-    return this.options.length + this.optionGroups.length;
+    if (this.options.length) {
+      return this.options.length + this.optionGroups.length;
+    } else if (this.optionData) {
+      return this.optionData.length;
+    } else if (this.optionDataGroups) {
+      return this.optionDataGroups.length + 
+          this.optionDataGroups.map(group => 
+              this.groupOptionsAccessor(group).length).reduce((previousValue: any, currentValue: number) => previousValue + currentValue, 0);
+    }
+    return 0;
   }
 
   /** Calculates the height of the select's options. */

@@ -298,13 +298,16 @@ export function _getOptionScrollPosition(optionIndex: number, optionHeight: numb
   const optionOffset = optionIndex * optionHeight;
 
   if (optionOffset < currentScrollPosition) {
+    console.log(`first return `, optionOffset);
     return optionOffset;
   }
 
   if (optionOffset + optionHeight > currentScrollPosition + panelHeight) {
+    console.log(`second return `, optionOffset - panelHeight + optionHeight);
     return Math.max(0, optionOffset - panelHeight + optionHeight);
   }
 
+  console.log(` last return `);
   return currentScrollPosition;
 }
 
