@@ -58,6 +58,12 @@ export interface MatOptionParentComponent {
 export const MAT_OPTION_PARENT_COMPONENT =
     new InjectionToken<MatOptionParentComponent>('MAT_OPTION_PARENT_COMPONENT');
 
+/** An interface for basic option operations */
+export interface MatOptionBase {
+  value: any;
+  viewValue: string;
+}
+
 /**
  * Single option inside of a `<mat-select>` element.
  */
@@ -84,7 +90,7 @@ export const MAT_OPTION_PARENT_COMPONENT =
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MatOption implements AfterViewChecked, OnDestroy {
+export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
   private _selected = false;
   private _active = false;
   private _disabled = false;
@@ -158,7 +164,6 @@ export class MatOption implements AfterViewChecked, OnDestroy {
 
   /** Sets focus onto this option. */
   focus(): void {
-  console.log(`focus`);
     const element = this._getHostElement();
 
     if (typeof element.focus === 'function') {

@@ -2,7 +2,7 @@
      (click)="toggle()"
      [id]="id"
      [attr.tabindex]="tabIndex"
-     [attr.aria-label]="_ariaLabel"
+     [attr.aria-label]="optionTemplate ? _ariaLabel : null"
      [attr.aria-labelledby]="ariaLabelledby"
      [attr.aria-required]="required.toString()"
      [attr.aria-disabled]="disabled.toString()"
@@ -77,10 +77,10 @@
      [attr.aria-multiselectable]="multiple"
      [style.display]="panelOpen ? 'block' : 'none'"
      *ngIf="optionTemplate">
-  <div role="option" *ngFor="let opt of filteredData; let index = index"
+  <div role="option" *ngFor="let opt of optionData; let index = index"
        id="{{_listboxId}}-opt-{{index}}"
        aria-disabled="false"
-       [attr.aria-selected]="_optionSelectionModel.isSelected(opt)">
+       [attr.aria-selected]="_selectionModel.isSelected(opt)">
     {{optionTextTransform(opt)}}
   </div>
 </div>

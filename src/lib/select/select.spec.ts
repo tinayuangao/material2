@@ -139,11 +139,14 @@ describe('MatSelect', () => {
         }));
 
         it('should set the role of the select to listbox', fakeAsync(() => {
-          expect(select.getAttribute('role')).toEqual('listbox');
+          const selectTrigger = fixture.debugElement.query(By.css('mat-select-trigger')).nativeElement;
+          expect(selectTrigger.getAttribute('role')).toEqual('listbox');
+          // expect(select.getAttribute('role')).toEqual('listbox');
         }));
 
         it('should set the aria label of the select to the placeholder', fakeAsync(() => {
-          expect(select.getAttribute('aria-label')).toEqual('Food');
+          const selectTrigger = fixture.debugElement.query(By.css('mat-select-trigger')).nativeElement;
+          expect(selectTrigger.getAttribute('aria-label')).toEqual('Food');
         }));
 
         it('should support setting a custom aria-label', fakeAsync(() => {
@@ -4283,6 +4286,28 @@ class SelectWithGroups {
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
+}
+
+@Component({
+  selector: 'select-with-template',
+  template: `
+    <mat-form-field>
+      <mat-select placeholder="Pokemon" [optionData]="pokemonTypes" [formControl]="control">
+        <mat-option *matOptionDef="let option" [value]="option">
+          {{ option.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  `
+})
+class SelectWithTemplate {
+  control = new FormControl();
+  pokemonTypes = [
+    {
+      name: 'Grass',
+      pokemon: [{ value: 'bulbasaur-0', viewValue: 'Bulbasaur' }]
+    }
+  ];
 }
 
 @Component({

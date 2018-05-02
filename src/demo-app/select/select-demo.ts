@@ -143,4 +143,5 @@ export class SelectDemo {
   };
 
   currentDrink2: string;
+  currentPokemon2: {};
 }

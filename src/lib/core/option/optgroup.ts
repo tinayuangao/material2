@@ -6,7 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Component, ViewEncapsulation, Input, ChangeDetectionStrategy} from '@angular/core';
+import {AfterViewInit, Component, Directive, ViewContainerRef, 
+      ViewEncapsulation, Input, ChangeDetectionStrategy} from '@angular/core';
 import {mixinDisabled, CanDisable} from '../common-behaviors/disabled';
 
 // Boilerplate for applying mixins to MatOptgroup.
@@ -16,6 +17,18 @@ export const _MatOptgroupMixinBase = mixinDisabled(MatOptgroupBase);
 
 // Counter for unique group ids.
 let _uniqueOptgroupIdCounter = 0;
+
+/** Directive to mark where options should be projected. */
+@Directive({selector: '[matOptionOutlet]'})
+export class MatOptionOutlet {
+  constructor(public viewContainerRef: ViewContainerRef) { }
+}
+
+/** Directive to mark where options should be projected. */
+@Directive({selector: '[matGroupOptionOutlet]'})
+export class MatGroupOptionOutlet {
+  constructor(public viewContainerRef: ViewContainerRef) { }
+}
 
 /**
  * Component that is used to group instances of `mat-option`.
@@ -37,7 +50,7 @@ let _uniqueOptgroupIdCounter = 0;
     '[attr.aria-labelledby]': '_labelId',
   }
 })
-export class MatOptgroup extends _MatOptgroupMixinBase implements CanDisable {
+export class MatOptgroup<T = any> extends _MatOptgroupMixinBase implements CanDisable {
   /** Label for the option group. */
   @Input() label: string;
 

@@ -30,6 +30,7 @@ import {
 } from '@angular/cdk/overlay';
 import {
   AfterContentInit,
+  AfterViewInit,
   Attribute,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -71,6 +72,7 @@ import {
   MAT_OPTION_PARENT_COMPONENT,
   MatOptgroup,
   MatOption,
+  MatOptionOutlet,
   MatOptionSelectionChange,
   mixinDisabled,
   mixinDisableRipple,
@@ -177,10 +179,10 @@ export class MatOptionDef {
   constructor(public templateRef: TemplateRef<any>) { }
 }
 
-/** Directive to mark where options should be projected. */
-@Directive({selector: '[matOptionOutlet]'})
-export class MatOptionOutlet {
-  constructor(public viewContainerRef: ViewContainerRef) { }
+/** Directive to capture the template for displayed options. */
+@Directive({selector: '[matOptionGroupDef]'})
+export class MatOptionGroupDef {
+  constructor(public templateRef: TemplateRef<any>) { }
 }
 
 @Component({
@@ -196,13 +198,13 @@ export class MatOptionOutlet {
     '[attr.role]': 'optionTemplate ? null : "listbox"',
     // '[attr.id]': 'id',
     // '[attr.tabindex]': 'tabIndex',
-    // '[attr.aria-label]': '_ariaLabel',
-    // '[attr.aria-labelledby]': 'ariaLabelledby',
+    '[attr.aria-label]': 'optionTemplate ? null : _ariaLabel',
+    '[attr.aria-labelledby]': 'ariaLabelledby',
     // '[attr.aria-required]': 'required.toString()',
     // '[attr.aria-disabled]': 'disabled.toString()',
     // '[attr.aria-invalid]': 'errorState',
     // '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
-    '[attr.aria-multiselectable]': 'optionTemplate ? null : multiple',
+    // '[attr.aria-multiselectable]': 'optionTemplate ? null : multiple',
     // '[attr.aria-describedby]': '_ariaDescribedby || null',
     // '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
     '[class.mat-select-disabled]': 'disabled',
@@ -222,23 +224,37 @@ export class MatOptionOutlet {
     {provide: MAT_OPTION_PARENT_COMPONENT, useExisting: MatSelect}
   ],
 })
-export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentInit, OnChanges,
-    OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable, HasTabIndex,
-    MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
-
-  filterText: string = '';
-  filter(filterText: string) {
-    if (this.optionFilterable) {
-      this.filteredData = this.optionData.filter(data =>
-        this.filterFunction(data, filterText));
-    } else {
-      this.filteredData = this.optionData;
-    }
-  }
+export class MatSelect<T = MatOption> extends _MatSelectMixinBase implements AfterContentInit,
+    AfterViewInit, OnChanges, OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable,
+    HasTabIndex, MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
 
   ngAfterViewInit() {
     this.optionOutlet.changes.subscribe(() => {
       this.renderPanel();
+    });
+
+    this.groupOptionOutlet.changes.subscribe(() => {
+      this.renderGroupOptions();
+    });
+  }
+
+  renderGroupOptions() {
+    // In the real implementation this will use the `Overlay` service.
+    Promise.resolve().then(() => {
+      if (this.panelOpen && this.groupOptionOutlet.length) {
+
+        if (this.optionDataGroups) {
+          for (let i = 0; i < this.optionDataGroups.length; i++) {
+            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
+              this.optionGroupTemplate.templateRef,
+              {
+                $implicit: this.optionDataGroups[i],
+                group: this.optionDataGroups[i],
+                index: i,
+              });
+          }
+        }
+      }
     });
   }
 
@@ -247,14 +263,26 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     Promise.resolve().then(() => {
       if (this.panelOpen && this.optionOutlet.first) {
         this.optionOutlet.first.viewContainerRef.clear();
-        for (let i = 0; i < this.filteredData.length; i++) {
-          this.optionOutlet.first.viewContainerRef.createEmbeddedView(
-            this.optionTemplate.templateRef,
-            {
-              $implicit: this.filteredData[i],
-              option: this.filteredData[i],
-              index: i,
-            });
+        if (this.optionData) {
+          for (let i = 0; i < this.optionData.length; i++) {
+            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
+              this.optionTemplate.templateRef,
+              {
+                $implicit: this.optionData[i],
+                option: this.optionData[i],
+                index: i,
+              });
+          }
+        } else if (this.optionDataGroups) {
+          for (let i = 0; i < this.optionDataGroups.length; i++) {
+            this.optionOutlet.first.viewContainerRef.createEmbeddedView(
+              this.optionGroupTemplate.templateRef,
+              {
+                $implicit: this.optionDataGroups[i],
+                group: this.optionDataGroups[i],
+                index: i,
+              });
+          }
         }
       }
     });
@@ -300,10 +328,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   _triggerFontSize = 0;
 
   /** Deals with the selection logic. */
-  _selectionModel: SelectionModel<MatOption>;
-
-  /** Delas with the selection data options. */
-  _optionSelectionModel: SelectionModel<T>;
+  _selectionModel: SelectionModel<T>;
 
   /** Manages keyboard events for options in the panel. */
   _keyManager: ActiveDescendantKeyManager<MatOption>;
@@ -363,9 +388,6 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   /** A name for this control that can be used by `mat-form-field`. */
   controlType = 'mat-select';
 
-  /** Filtered data options. If there's no filter function, it's the same as `optionData`. */
-  filteredData: T[] = [];
-
   /** Trigger that opens the select. */
   @ViewChild('trigger') trigger: ElementRef;
 
@@ -393,34 +415,36 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   /** The option outlet to render the option data. */
   @ViewChildren(MatOptionOutlet) optionOutlet: QueryList<MatOptionOutlet>;
 
+  /** The option outlet to render the options inside an option group. */
+  @ContentChildren(MatGroupOptionOutlet) groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
+
   /**
    * Transform function to tranform data object to string for accessiblity
    */
   @Input()
   optionTextTransform: (T) => string = o => `${o}`;
 
-  /**
-   * The filter function to filter the option list.
-   * The input box for filter only display when there's a filter function.
-   */
-  @Input()
-  filterFunction: ((T, string) => boolean) =   (opt: {}, filterText: string) => {
-    return `${opt}`.indexOf(filterText) > -1;
-  };
-
-  /** Whether we have a input box to filter the options. */
-  @Input()
-  optionFilterable: boolean;
-
   /** Options data for template style select list. */
   @Input()
   get optionData(): T[] { return this._optionData; }
   set optionData(value: T[]) {
     this._optionData = value;
-    this.filteredData = this._optionData;
     this.stateChanges.next();
   }
-  private _optionData: T[] = [];
+  private _optionData: T[];
+
+  /** Option group data for template style select. */
+  @Input()
+  get optionDataGroups(): any[] { return this._optionGroups; }
+  set optionDataGroups(value: any[]) {
+    this._optionDataGroups = value;
+    this.stateChanges.next();
+  }
+  private _optionDataGroups: any[];
+
+  /** Function to extract the options from option groups. */
+  @Input()
+  optionsForGroup: (any) => T[];
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -442,7 +466,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   @Input()
   get multiple(): boolean { return this._multiple; }
   set multiple(value: boolean) {
-    if (this._selectionModel || this._optionSelectionModel) {
+    if (this._selectionModel) {
       throw getMatSelectDynamicMultipleError();
     }
 
@@ -573,8 +597,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   }
 
   ngOnInit() {
-    this._selectionModel = new SelectionModel<MatOption>(this.multiple, undefined, false);
-    this._optionSelectionModel = new SelectionModel<T>(this.multiple, undefined, false);
+    this._selectionModel = new SelectionModel<T>(this.multiple, undefined, false);
     this.stateChanges.next();
   }
 
@@ -614,8 +637,8 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   /** Opens the overlay panel. */
   open(): void {
-    const useTemplate = this.optionTemplate && this.optionData && this.optionData.length;
-    const hasOptions = (this.options && this.options.length) || useTemplate;
+    const hasOptions = (this.options && this.options.length) ||
+        (this.optionData && this.optionData.length);
     if (this.disabled || !hasOptions || this._panelOpen) {
       return;
     }
@@ -644,7 +667,6 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   close(): void {
     if (this._panelOpen) {
       this._panelOpen = false;
-      this.filteredData = this._optionData; // Reset options
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
       this._onTouched();
@@ -657,12 +679,9 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    *
    * @param value New value to be written to the model.
    */
-  writeValue(value: T): void {
-    if (this.options) {
+  writeValue(value: T | T[]): void {
+    if (this.options || this._optionData) {
       this._setSelectionByValue(value);
-    }
-    if (this.optionData) {
-      this._setSelectionOptionByValue(value);
     }
     this._value = value;
   }
@@ -707,42 +726,43 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   }
 
   /** The currently selected option. */
-  get selected(): MatOption | MatOption[] {
+  get selected(): T | T[] {
     return this.multiple ? this._selectionModel.selected : this._selectionModel.selected[0];
   }
 
-  /** The current selected option data's value */
-  get selectedValue(): any {
-    return this.multiple
-      ? this._optionSelectionModel.selected
-      : this._optionSelectionModel.selected[0];
-  }
-
   /** The value displayed in the trigger. */
-  get triggerValue(): string {
-    if (this.empty) {
-      return '';
-    }
+  get triggerValue(): string { return this._triggerValue; }
 
-    if (this.optionTemplate) {
-      return this.multiple
-          ? this._optionSelectionModel.selected
-              .map(option => this.optionTextTransform(option)).join(', ')
-          : this.optionTextTransform(this._optionSelectionModel.selected[0]);
+  _updateTriggerValue() {
+    if (this.empty) {
+      console.log(`emptu`, this._selectionModel)
+      this._triggerValue = '';
+      return;
     }
 
     if (this._multiple) {
-      const selectedOptions = this._selectionModel.selected.map(option => option.viewValue);
+      const selectedOptions = this._selectionModel.selected
+          .map(option => this._getOptionViewValue(option));
 
       if (this._isRtl()) {
         selectedOptions.reverse();
       }
 
+      console.log(`selected optons`, selectedOptions)
       // TODO(crisbeto): delimiter should be configurable for proper localization.
-      return selectedOptions.join(', ');
+      this._triggerValue = selectedOptions.join(', ');
+      return;
     }
 
-    return this._selectionModel.selected[0].viewValue;
+    this._triggerValue = this._getOptionViewValue(this._selectionModel.selected[0]);
+  }
+  private _triggerValue: string = '';
+
+  /** Get the display value of the option */
+  private _getOptionViewValue(option: T) {
+    return this.optionTemplate
+        ? this.optionTextTransform(option)
+        : this._findOptionByValue(option)!.viewValue;
   }
 
   /** Whether the element is in RTL mode. */
@@ -865,8 +885,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   /** Whether the select has a value. */
   get empty(): boolean {
-    return (!this._selectionModel || this._selectionModel.isEmpty()) &&
-        (!this._optionSelectionModel || this._optionSelectionModel.isEmpty());
+    return !this._selectionModel || this._selectionModel.isEmpty();
   }
 
   private _initializeSelection(): void {
@@ -875,9 +894,6 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     Promise.resolve().then(() => {
       const value = this.ngControl ? this.ngControl.value : this._value;
       this._setSelectionByValue(value);
-      if (this.optionTemplate) {
-        this._setSelectionOptionByValue(value);
-      }
     });
   }
 
@@ -885,15 +901,16 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    * Sets the selected option based on a value. If no option can be
    * found with the designated value, the select trigger is cleared.
    */
-  private _setSelectionByValue(value: any | any[], isUserInput = false): void {
+  private _setSelectionByValue(value: any, isUserInput = false): void {
+    console.log(`set selection by value `, value)
     if (this.multiple && value) {
       if (!Array.isArray(value)) {
         throw getMatSelectNonArrayValueError();
       }
 
-      this._clearSelection(); // MatOption
+      this._clearSelection();
       value.forEach((currentValue: any) => this._selectValue(currentValue, isUserInput));
-      this._sortValues(); // MatOption
+      this._sortValues();
     } else {
       this._clearSelection();
 
@@ -909,23 +926,16 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     this._changeDetectorRef.markForCheck();
   }
 
-  /** Sets the selected option data in its selection model. */
-  private _setSelectionOptionByValue(value: any | any[]): void {
-    if (!this._optionSelectionModel || !this.optionTemplate) { return; }
-    this._optionSelectionModel.clear();
-    if (this.multiple && value && Array.isArray(value)) {
-      value.forEach((currentValue: any) => this._optionSelectionModel.select(currentValue));
-    } else if (value) {
-      this._optionSelectionModel.select(value as T);
-    }
+  /** Return the first selected MatOption. */
+  get selectedOption(): MatOption | undefined {
+    if (this.empty) { return undefined; }
+    const firstSelected = this._selectionModel.selected[0];
+    return this._findOptionByValue(firstSelected);
   }
 
-  /**
-   * Finds and selects and option based on its value.
-   * @returns Option that has the corresponding value.
-   */
-  private _selectValue(value: any, isUserInput = false): MatOption | undefined {
-    const correspondingOption = this.options.find((option: MatOption) => {
+  /** Find the corresponding MatOption by its value. */
+  private _findOptionByValue(value: any): MatOption | undefined {
+    return this.options.find((option: MatOption) => {
       try {
         // Treat null as a special reset value.
         return option.value != null && this._compareWith(option.value,  value);
@@ -937,12 +947,28 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
         return false;
       }
     });
+  }
+
+  /**
+   * Finds and selects and option based on its value.
+   * @returns Option that has the corresponding value.
+   */
+  private _selectValue(value: any, isUserInput = false): MatOption | undefined {
+    const correspondingOption = this._findOptionByValue(value);
+
+    console.log(`corresponding `, correspondingOption, value, this.optionTemplate);
 
     if (correspondingOption) {
       isUserInput ? correspondingOption._selectViaInteraction() : correspondingOption.select();
-      this._selectionModel.select(correspondingOption);
+      if (!this.optionTemplate) { this._selectionModel.select(correspondingOption.value); }
+
       this.stateChanges.next();
     }
+    if (this.optionTemplate && !!value) {
+      this._selectionModel.select(value);
+      console.log(`update selection model `, value)
+    }
+    this._updateTriggerValue();
 
     return correspondingOption;
   }
@@ -953,12 +979,14 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    * @param skip Option that should not be deselected.
    */
   private _clearSelection(skip?: MatOption): void {
+    console.log(`clear selection`)
     this._selectionModel.clear();
     this.options.forEach(option => {
       if (option !== skip) {
         option.deselect();
       }
     });
+    this._updateTriggerValue;
     this.stateChanges.next();
   }
 
@@ -1013,16 +1041,16 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
   /** Invoked when an option is clicked. */
   private _onSelect(option: MatOption): void {
-    const wasSelected = this._selectionModel.isSelected(option);
+    const optionValue = option.value as T;
+    const wasSelected = this._selectionModel.isSelected(optionValue);
 
     // TODO(crisbeto): handle blank/null options inside multi-select.
     if (this.multiple) {
-      this._selectionModel.toggle(option);
-      this._optionSelectionModel.toggle(option.value);
+      this._selectionModel.toggle(optionValue);
       this.stateChanges.next();
       wasSelected ? option.deselect() : option.select();
       this._keyManager.setActiveItem(option);
-      this._sortValues();
+      if (!this.optionTemplate) { this._sortValues(); }
 
       // In case the user select the option with their mouse, we
       // want to restore focus back to the trigger, in order to
@@ -1030,18 +1058,18 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
       // the ones from `mat-option`.
       this.focus();
     } else {
-      this._clearSelection(option.value == null ? undefined : option);
+      this._clearSelection(optionValue == null ? undefined : option);
 
-      if (option.value == null) {
-        this._propagateChanges(option.value);
+      if (optionValue == null) {
+        this._propagateChanges(optionValue);
       } else {
-        this._selectionModel.select(option);
-        this._optionSelectionModel.select(option.value);
+        this._selectionModel.select(optionValue);
+        this._updateTriggerValue();
         this.stateChanges.next();
       }
     }
 
-    if (wasSelected !== this._selectionModel.isSelected(option)) {
+    if (wasSelected !== this._selectionModel.isSelected(optionValue)) {
       this._propagateChanges();
     }
   }
@@ -1051,33 +1079,23 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    * order that they have in the panel.
    */
   private _sortValues(): void {
-    if (this._multiple) {
+    if (this._multiple && !this.optionTemplate) {
+      console.log(`sort valuesclear`)
       this._selectionModel.clear();
 
       this.options.forEach(option => {
         if (option.selected) {
-          this._selectionModel.select(option);
+          this._selectionModel.select(option.value);
         }
       });
+      this._updateTriggerValue();
       this.stateChanges.next();
     }
   }
 
   /** Emits change event to set the model value. */
   private _propagateChanges(fallbackValue?: any): void {
-    let valueToEmit: any = null;
-
-    if (this.optionTemplate) {
-      valueToEmit =
-          this.selectedValue ? this.selectedValue : fallbackValue;
-    } else {
-      if (this.multiple) {
-        valueToEmit = (this.selected as MatOption[]).map(option => option.value);
-      } else {
-        valueToEmit = this.selected ? (this.selected as MatOption).value : fallbackValue;
-      }
-    }
-
+    let valueToEmit = this.selected || fallbackValue;
     this._value = valueToEmit;
     this.valueChange.emit(valueToEmit);
     this._onChange(valueToEmit);
@@ -1089,6 +1107,12 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   private _setOptionIds() {
     this._optionIds = this.options.map(option => option.id).join(' ');
   }
+  
+  private _setOptionData() {
+    if (!this._optionData) {
+      this._optionData = this.options.map(option => option.value);
+    }
+  }
 
   /**
    * Highlights the selected item. If no option is selected, it will highlight
@@ -1096,10 +1120,10 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
    */
   private _highlightCorrectOption(): void {
     if (this._keyManager) {
-      if (this.empty) {
-        this._keyManager.setFirstItemActive();
+      if (this.selectedOption) {
+        this._keyManager.setActiveItem(this.selectedOption);
       } else {
-        this._keyManager.setActiveItem(this._selectionModel.selected[0]);
+        this._keyManager.setFirstItemActive();
       }
     }
   }
@@ -1142,7 +1166,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
 
     // If no value is selected we open the popup to the first item.
     let selectedOptionOffset =
-        this.empty ? 0 : this._getOptionIndex(this._selectionModel.selected[0])!;
+        this.empty ? 0 : this._getOptionIndex(this.selectedOption!)!;
 
     selectedOptionOffset += _countGroupLabelsBeforeOption(selectedOptionOffset, this.options,
         this.optionGroups);
@@ -1218,7 +1242,7 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
     if (this.multiple) {
       offsetX = SELECT_MULTIPLE_PANEL_PADDING_X;
     } else {
-      let selected = this._selectionModel.selected[0] || this.options.first;
+      let selected = this.selectedOption || this.options.first;
       offsetX = selected && selected.group ? SELECT_PANEL_INDENT_PADDING_X : SELECT_PANEL_PADDING_X;
     }
 
@@ -1405,4 +1429,31 @@ export class MatSelect<T> extends _MatSelectMixinBase implements AfterContentIni
   get shouldLabelFloat(): boolean {
     return this._panelOpen || !this.empty;
   }
+
+  filterText: string = '';
+  filter(filterText: string) {
+    if (this.optionFilterable) {
+      this.filteredData = this.optionData.filter(data =>
+          this.filterFunction(data, filterText));
+    } else {
+      this.filteredData = this.optionData;
+    }
+  }
+
+  /** Filtered data options. If there's no filter function, it's the same as `optionData`. */
+  filteredData: T[] = [];
+
+
+  /**
+   * The filter function to filter the option list.
+   * The input box for filter only display when there's a filter function.
+   */
+  @Input()
+  filterFunction: ((T, string) => boolean) =   (opt: {}, filterText: string) => {
+    return `${opt}`.indexOf(filterText) > -1;
+  };
+
+  /** Whether we have a input box to filter the options. */
+  @Input()
+  optionFilterable: boolean;
 }
