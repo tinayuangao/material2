@@ -81,15 +81,25 @@
      its activedescendant doesn't take effect. -->
 <div role="listbox"
      [id]="_listboxId"
-     class="cdk-visually-hidden"
      [attr.aria-multiselectable]="multiple"
      [style.display]="panelOpen ? 'block' : 'none'"
+     class="cdk-visually-hidden"
      *ngIf="optionTemplate">
   <div role="option" *ngFor="let opt of optionData; let index = index"
        id="{{_listboxId}}-opt-{{index}}"
        aria-disabled="false"
        [attr.aria-selected]="_selectionModel.isSelected(opt)">
     {{optionTextTransform(opt)}}
+  </div>
+  <div role="group" *ngFor="let group of optionDataGroups; let index = index"
+       id="{{_listboxId}}-group-{{index}}"
+       aria-disabled="false">
+    <div role="option" *ngFor="let opt of groupOptionsAccessor(group); let optindex = index"
+         id="{{_listboxId}}-group-{{index}}-opt-{{optindex}}"
+         aria-disabled="false"
+         [attr.aria-selected]="_selectionModel.isSelected(opt)">
+      {{optionTextTransform(opt)}}
+    </div>
   </div>
 </div>
 
