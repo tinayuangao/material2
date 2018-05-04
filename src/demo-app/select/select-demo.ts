@@ -44,8 +44,6 @@ export class SelectDemo {
     {value: 'tacos-2', viewValue: 'Tacos'}
   ];
 
-
-
   drinks = [
     {value: 'coke-0', viewValue: 'Coke'},
     {value: 'long-name-1', viewValue: 'Decaf Chocolate Brownie Vanilla Gingerbread Frappuccino'},
@@ -117,12 +115,6 @@ export class SelectDemo {
     {value: 'vajiramon-4', viewValue: 'Vajiramon'},
     {value: 'indramon-5', viewValue: 'Indramon'}
   ];
-
-  constructor() {
-    // for (let i = 0; i < 1000; i ++ ) {
-    //   this.drinks.push({value: `special-${i}`, viewValue: `Secret menu ${i}`})
-    // }
-  }
 
   toggleDisabled() {
     this.foodControl.enabled ? this.foodControl.disable() : this.foodControl.enable();

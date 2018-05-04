@@ -59,24 +59,21 @@
       (@fadeInContent.done)="_onFadeInDone()">
       <ng-content></ng-content>
 
-      <!--<div *ngIf="panelOpen">-->
-        <!--<ng-container *ngTemplateOutlet="selectOptionOutlet"></ng-container>-->
-      <!--</div>-->
-      <div aria-hidden="true" role="presentation">
-        <ng-container matOptionOverlayOutlet></ng-container>
+      <div *ngIf="panelOpen">
+        <ng-container *ngTemplateOutlet="selectOptionOutlet"></ng-container>
       </div>
     </div>
   </div>
 </ng-template>
 
-<!--<ng-template #selectOptionOutlet>-->
-  <!--<div aria-hidden="true" role="presentation">-->
-    <!--<ng-container matOptionOutlet></ng-container>-->
-  <!--</div>-->
-<!--</ng-template>-->
+<ng-template #selectOptionOutlet>
+  <div aria-hidden="true" role="presentation">
+    <ng-container matOptionOutlet></ng-container>
+  </div>
+</ng-template>
 
-<div style="display:none" aria-hidden="true" role="presentation">
-  <ng-container matOptionOutlet></ng-container>
+<div *ngIf="!panelOpen" class="cdk-visually-hidden">
+  <ng-container *ngTemplateOutlet="selectOptionOutlet"></ng-container>
 </div>
 
 <!-- Listbox and options are always in the DOM and do not use the user's template.
@@ -93,17 +90,6 @@
        aria-disabled="false"
        [attr.aria-selected]="_selectionModel.isSelected(opt)">
     {{optionTextTransform(opt)}}
-  </div>
-
-  <div role="option" *ngFor="let opt of optionDataGroups; let index = index"
-       id="{{_listboxId}}-group-{{index}}"
-       aria-disabled="false">
-    <div role="option" *ngFor="let opt of groupOptionsAccessor(optionDataGroups[index]); let j = index"
-      id="{{_listboxId}}-group-{{index}}-opt-{{j}}"
-      aria-disabled="false"
-      [attr.aria-selected]="_selectionModel.isSelected(opt)">
-      {{optionTextTransform(opt)}}
-    </div>
   </div>
 </div>
 
