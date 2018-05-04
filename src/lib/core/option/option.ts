@@ -128,7 +128,7 @@ export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
     private _element: ElementRef,
     private _changeDetectorRef: ChangeDetectorRef,
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
-    @Optional() readonly group: MatOptgroup) {
+    @Optional() public group: MatOptgroup) {
     MatOption.mostRecentOption = this;
     group && console.log(`group is `, group, group.disabled)
   }

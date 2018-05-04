@@ -91,6 +91,17 @@
        [attr.aria-selected]="_selectionModel.isSelected(opt)">
     {{optionTextTransform(opt)}}
   </div>
+
+  <div role="group" *ngFor="let group of optionDataGroups; let index = index"
+       id="{{_listboxId}}-group-{{index}}"
+       aria-disabled="false">
+    <div role="option" *ngFor="let opt of groupOptionsAccessor(group); let optindex = index"
+         id="{{_listboxId}}-group-{{index}}-opt-{{optindex}}"
+         aria-disabled="false"
+         [attr.aria-selected]="_selectionModel.isSelected(opt)">
+      {{optionTextTransform(opt)}}
+    </div>
+  </div>
 </div>
 
 

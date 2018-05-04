@@ -7,7 +7,7 @@
  */
 
 import {AfterViewInit, Component, Directive, ViewContainerRef, 
-      ViewEncapsulation, Input, ChangeDetectionStrategy} from '@angular/core';
+      ViewEncapsulation, Input, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {mixinDisabled, CanDisable} from '../common-behaviors/disabled';
 
 // Boilerplate for applying mixins to MatOptgroup.
@@ -53,6 +53,8 @@ export class MatGroupOptionOutlet {
 export class MatOptgroup<T = any> extends _MatOptgroupMixinBase implements CanDisable {
   /** Label for the option group. */
   @Input() label: string;
+
+  @ViewChild('optionsOutlet', {read: ViewContainerRef}) optionsOutlet: ViewContainerRef;
 
   /** Unique id for the underlying label. */
   _labelId: string = `mat-optgroup-label-${_uniqueOptgroupIdCounter++}`;
