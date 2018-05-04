@@ -130,6 +130,7 @@ export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
     @Optional() readonly group: MatOptgroup) {
     MatOption.mostRecentOption = this;
+    group && console.log(`group is `, group, group.disabled)
   }
 
   /**
@@ -301,16 +302,13 @@ export function _getOptionScrollPosition(optionIndex: number, optionHeight: numb
   const optionOffset = optionIndex * optionHeight;
 
   if (optionOffset < currentScrollPosition) {
-    console.log(`first return `, optionOffset);
     return optionOffset;
   }
 
   if (optionOffset + optionHeight > currentScrollPosition + panelHeight) {
-    console.log(`second return `, optionOffset - panelHeight + optionHeight);
     return Math.max(0, optionOffset - panelHeight + optionHeight);
   }
 
-  console.log(` last return `);
   return currentScrollPosition;
 }
 

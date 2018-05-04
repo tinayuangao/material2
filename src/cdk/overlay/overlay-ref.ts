@@ -132,6 +132,7 @@ export class OverlayRef implements PortalOutlet {
    * @returns The portal detachment result.
    */
   detach(): any {
+    console.log(`detachxxxxxxxxxxxxxxxxx`)
     if (!this.hasAttached()) {
       return;
     }
@@ -164,6 +165,7 @@ export class OverlayRef implements PortalOutlet {
 
   /** Cleans up the overlay from the DOM. */
   dispose(): void {
+    console.log(`disposexxxxxxxxxxxxxxxxx`)
     const isAttached = this.hasAttached();
 
     if (this._config.positionStrategy) {
