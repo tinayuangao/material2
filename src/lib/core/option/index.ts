@@ -10,7 +10,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatRippleModule} from '../ripple/index';
 import {MatPseudoCheckboxModule} from '../selection/index';
-import {MatOption} from './option';
+import {MatOption, MatOptionBase} from './option';
 import {MatOptgroup, MatGroupOptionOutlet, MatOptionOutlet} from './optgroup';
 
 

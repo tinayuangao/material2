@@ -74,6 +74,7 @@ import {
   MatOptgroup,
   MatOption,
   MatOptionOutlet,
+  MatOptionBase,
   MatGroupOptionOutlet,
   MatOptionSelectionChange,
   mixinDisabled,
@@ -250,27 +251,25 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   renderGroupOptions() {
     // In the real implementation this will use the `Overlay` service.
     Promise.resolve().then(() => {
+      let counter = 0;
     if (this.groupOptionOutlet && this.groupOptionOutlet.length && this.optionDataGroups) {
       const outlets = this.groupOptionOutlet.toArray();
       for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
         outlets[i].viewContainerRef.clear();
         const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
         options.forEach((option, j) => {
-          this._renderOption(outlets[i].viewContainerRef, option, j);
+          this._renderOption(outlets[i].viewContainerRef, option, j, counter++);
         });
       }
     }
     });
   }
 
-  private _optionViewRefs: ViewRef[];
-
   renderOptions() {
     // In the real implementation this will use the `Overlay` service.
      Promise.resolve().then(() => {
     if (this.optionOutlet && this.optionOutlet.first) {
       this.optionOutlet.first.viewContainerRef.clear();
-      this._optionViewRefs = [];
       if (this.optionData) {
         for (let i = 0; i < this.optionData.length; i++) {
           this._renderOption(this.optionOutlet.first.viewContainerRef, this.optionData[i], i);
@@ -287,24 +286,27 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   }
 
   private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
-    this._optionViewRefs.push(viewContainerRef.createEmbeddedView(
+    viewContainerRef.createEmbeddedView(
       this.optionGroupTemplate.templateRef,
       { 
         $implicit: group,
         group: group,
         index: index,
-      }));
+      });
   }
 
-  private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number) {
-    this._optionViewRefs.push(viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
+  private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number, counter: number = index) {
+    viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
       {
         $implicit: option,
         option: option,
         index: index,
-        selected: this._selectionModel.isSelected(option)
-      }));
-    MatOption.mostRecentOption.value = option;
+      });
+    if (this._optionStatus[counter]) {
+      MatOption.mostRecentOption.restoreStatus(this._optionStatus[counter]);
+    } else {
+      MatOption.mostRecentOption.value = option;
+    }
   }
 
   /** Whether or not the overlay panel is open. */
@@ -339,6 +341,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Unique id for the selected value label. */
   _labelId = `${this._uid}-label`;
+
+  _optionStatus: MatOptionBase[] = [];
 
   /** The last measured value for the trigger's client bounding rect. */
   _triggerRect: ClientRect;
@@ -731,11 +735,16 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     if (this._panelOpen) {
+      this._saveOptionStatus();
       this._panelOpen = false;
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
       this._onTouched();
     }
+  }
+
+  _saveOptionStatus() {
+    this._optionStatus = this.options.map(option => option as MatOptionBase);
   }
 
   /**

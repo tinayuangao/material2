@@ -59,9 +59,15 @@ export const MAT_OPTION_PARENT_COMPONENT =
     new InjectionToken<MatOptionParentComponent>('MAT_OPTION_PARENT_COMPONENT');
 
 /** An interface for basic option operations */
-export interface MatOptionBase {
+export class MatOptionBase {
+  _selected: boolean;
+  _active: boolean;
+  _disabled: boolean;
+  _id: string;
+  _mostRecentViewValue: string;
   value: any;
-  viewValue: string;
+
+
 }
 
 /**
@@ -90,13 +96,13 @@ export interface MatOptionBase {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
+export class MatOption extends MatOptionBase implements AfterViewChecked, OnDestroy {
   static mostRecentOption:  MatOption;
-  private _selected = false;
-  private _active = false;
-  private _disabled = false;
-  private _id = `mat-option-${_uniqueIdCounter++}`;
-  private _mostRecentViewValue = '';
+  _selected = false;
+  _active = false;
+  _disabled = false;
+  _id = `mat-option-${_uniqueIdCounter++}`;
+  _mostRecentViewValue = '';
 
   /** Whether the wrapping component is in multiple selection mode. */
   get multiple() { return this._parent && this._parent.multiple; }
@@ -129,8 +135,18 @@ export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
     private _changeDetectorRef: ChangeDetectorRef,
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
     @Optional() readonly group: MatOptgroup) {
+    super();
     MatOption.mostRecentOption = this;
     group && console.log(`group is `, group, group.disabled)
+  }
+
+  restoreStatus(optionStatus: MatOptionBase) {
+    this._selected = optionStatus._selected;
+    this._active = optionStatus._active;
+    this._disabled = optionStatus._disabled;
+    this._id = optionStatus._id;
+    this._mostRecentViewValue = optionStatus._mostRecentViewValue;
+    this.value = optionStatus.value;
   }
 
   /**
