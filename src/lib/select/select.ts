@@ -241,27 +241,26 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     this.optionOutlet.changes.subscribe(() => {
       this.renderOptions();
     });
+
     this.groupOptionOutlet.changes.subscribe(() => {
-      console.log(`rende rgroups`)
       this.renderGroupOptions();
-    })
+    });
   }
 
   renderGroupOptions() {
     // In the real implementation this will use the `Overlay` service.
-    // Promise.resolve().then(() => {
-    if (this.optionGroups && this.optionGroups.length && this.optionDataGroups && this.optionDataGroups.length && this.groupOptionOutlet && this.groupOptionOutlet.length) {
-      for (let i = 0; i < this.optionDataGroups.length && i < this.optionGroups.length; i++) {
-        const viewContainerRef = this.groupOptionOutlet.toArray()[i].viewContainerRef;
-        viewContainerRef.clear();
+    Promise.resolve().then(() => {
+    if (this.groupOptionOutlet && this.groupOptionOutlet.length && this.optionDataGroups) {
+      const outlets = this.groupOptionOutlet.toArray();
+      for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
+        outlets[i].viewContainerRef.clear();
         const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
         options.forEach((option, j) => {
-          this._renderOption(viewContainerRef, option, j);
-          MatOption.mostRecentOption.group = this.optionGroups[i];
+          this._renderOption(outlets[i].viewContainerRef, option, j);
         });
       }
     }
-    // });
+    });
   }
 
   private _optionViewRefs: ViewRef[];
@@ -295,18 +294,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         group: group,
         index: index,
       }));
-    // Promise.resolve().then(() => this._renderGroupOptions(group, index));
   }
-
-  // _renderGroupOptions(group: F, index: number) {
-  //   const optGroup = this.groupOptionOutlet.toArray()[index];
-  //   const viewContainerRef = optGroup.optionsOutlet;
-  //   viewContainerRef.clear();
-  //   this.groupOptionsAccessor(group).forEach((option, j) => {
-  //     this._renderOption(viewContainerRef, option, j);
-  //     MatOption.mostRecentOption.group = optGroup;
-  //   });
-  // }
 
   private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number) {
     this._optionViewRefs.push(viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
@@ -314,6 +302,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         $implicit: option,
         option: option,
         index: index,
+        selected: this._selectionModel.isSelected(option)
       }));
     MatOption.mostRecentOption.value = option;
   }
@@ -464,9 +453,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** The option outlet to render the options inside an option group. */
   @ContentChildren(MatGroupOptionOutlet, { descendants: true }) groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
-
-// @ContentChildren('optionsOutlet', {read: ViewContainerRef, descendants: true}) groupOptionOutlet: QueryList<ViewContainerRef>;
-
 
   /**
    * Transform function to tranform data object to string for accessiblity
@@ -1085,9 +1071,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataGroupSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionDataGroups = data;
-          if (this._panelEverOpened) {
-            this.renderOptions();
-          }
+          this.renderGroupOptions();
         });
     }
   }
