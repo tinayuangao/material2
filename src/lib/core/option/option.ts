@@ -58,11 +58,6 @@ export interface MatOptionParentComponent {
 export const MAT_OPTION_PARENT_COMPONENT =
     new InjectionToken<MatOptionParentComponent>('MAT_OPTION_PARENT_COMPONENT');
 
-/** An interface for basic option operations */
-export interface MatOptionBase {
-  value: any;
-  viewValue: string;
-}
 
 /**
  * Single option inside of a `<mat-select>` element.
@@ -90,7 +85,7 @@ export interface MatOptionBase {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
+export class MatOption implements AfterViewChecked, OnDestroy {
   static mostRecentOption:  MatOption;
   private _selected = false;
   private _active = false;
@@ -128,9 +123,8 @@ export class MatOption implements AfterViewChecked, MatOptionBase, OnDestroy {
     private _element: ElementRef,
     private _changeDetectorRef: ChangeDetectorRef,
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
-    @Optional() readonly group: MatOptgroup) {
+    @Optional() public group: MatOptgroup) {
     MatOption.mostRecentOption = this;
-    group && console.log(`group is `, group, group.disabled)
   }
 
   /**

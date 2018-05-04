@@ -73,6 +73,7 @@ import {
   MAT_OPTION_PARENT_COMPONENT,
   MatOptgroup,
   MatOption,
+  MatOptionDef,
   MatOptionOutlet,
   MatGroupOptionOutlet,
   MatOptionSelectionChange,
@@ -176,12 +177,6 @@ export const _MatSelectMixinBase = mixinDisableRipple(
 export class MatSelectTrigger {}
 
 /** Directive to capture the template for displayed options. */
-@Directive({selector: '[matOptionDef]'})
-export class MatOptionDef {
-  constructor(public templateRef: TemplateRef<any>) { }
-}
-
-/** Directive to capture the template for displayed options. */
 @Directive({selector: '[matOptionGroupDef]'})
 export class MatOptionGroupDef {
   constructor(public templateRef: TemplateRef<any>) { }
@@ -193,6 +188,15 @@ export class MatOptionOverlayOutlet {
   constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
+@Component({
+  moduleId: module.id,
+  selector: 'mat-select-option',
+  template: 'Select option {{value}}',
+})
+class MatSelectOption<T=any> {
+  value: T;
+
+}
 
 @Component({
   moduleId: module.id,
@@ -238,10 +242,13 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     HasTabIndex, MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple, CollectionViewer {
 
   ngAfterViewInit() {
-    this.optionOutlet.changes.subscribe(() => {
-      this.renderOptions();
+    this.overlayOutlet.changes.subscribe(() => {
+      if (this.overlayOutlet.first) {
+        this.renderOptions();
+      } else {
+        this.renderOptions(this.optionOutlet.first.viewContainerRef);
+      }
     });
-
     this.groupOptionOutlet.changes.subscribe(() => {
       this.renderGroupOptions();
     });
@@ -250,40 +257,65 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   renderGroupOptions() {
     // In the real implementation this will use the `Overlay` service.
     Promise.resolve().then(() => {
-    if (this.groupOptionOutlet && this.groupOptionOutlet.length && this.optionDataGroups) {
-      const outlets = this.groupOptionOutlet.toArray();
-      for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
-        outlets[i].viewContainerRef.clear();
+    if (this.optionGroups && this.optionDataGroups) {
+      for (let i = 0; i < this.optionDataGroups.length && i < this.optionGroups.length; i++) {
+        const viewContainerRef = this.optionGroups.toArray()[i].optionsOutlet;
+        viewContainerRef.clear();
         const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
         options.forEach((option, j) => {
-          this._renderOption(outlets[i].viewContainerRef, option, j);
+          this._renderOption(viewContainerRef, option, j);
+          MatOption.mostRecentOption.group = this.optionGroups[i];
         });
       }
+
     }
     });
   }
 
   private _optionViewRefs: ViewRef[];
 
-  renderOptions() {
+  renderOptions(viewContainerRef: ViewContainerRef = this.overlayOutlet.first.viewContainerRef) {
     // In the real implementation this will use the `Overlay` service.
      Promise.resolve().then(() => {
-    if (this.optionOutlet && this.optionOutlet.first) {
-      this.optionOutlet.first.viewContainerRef.clear();
+    // if (this.optionOutlet && this.optionOutlet.first) {
+      this._panelEverOpened = true;
+      viewContainerRef.clear();
       this._optionViewRefs = [];
       if (this.optionData) {
         for (let i = 0; i < this.optionData.length; i++) {
-          this._renderOption(this.optionOutlet.first.viewContainerRef, this.optionData[i], i);
+          this._renderOption(viewContainerRef, this.optionData[i], i);
         }
       } else if (this.optionDataGroups) {
         for (let i = 0; i < this.optionDataGroups.length; i++) {
-          this._renderGroup(this.optionOutlet.first.viewContainerRef, this.optionDataGroups[i], i);
+          this._renderGroup(viewContainerRef, this.optionDataGroups[i], i);
         }
       }
+      console.log('rendered')
+
       // this._panelEverOpened = true;
-      // this._copyViewRefsToOverlay();
-    }
+    // }
     });
+  }
+
+  private _moveViewRefsToOverlay() {
+    if (!this.optionOutlet.length || !this.overlayOutlet.length) {return;}
+    // this._moveViewRefs(this.overlayOutlet.first.viewContainerRef, this.optionOutlet.first.viewContainerRef);
+  }
+
+  private _moveViewRefsFromOverlay() {
+    if (!this.optionOutlet.length || !this.overlayOutlet.length) {return;}
+    // this._moveViewRefs(this.optionOutlet.first.viewContainerRef, this.overlayOutlet.first.viewContainerRef);
+  }
+
+  private _moveViewRefs(to: ViewContainerRef, from: ViewContainerRef) {
+    if (to && from) {
+      to.clear();
+      const length = from.length ;
+      for (let i = 0; i < length; i++) {
+        const ref = from.detach(0); // Always remove from head
+        if (ref && !ref.destroyed ) { to.insert(ref); }
+      }
+    }
   }
 
   private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
@@ -294,6 +326,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         group: group,
         index: index,
       }));
+    // MatOptgroup.mostRecentOptGroup.options = this.groupOptionsAccessor(group);
+    // MatOptgroup.mostRecentOptGroup.optionTemplate = this.optionTemplate;
   }
 
   private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number) {
@@ -664,6 +698,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._resetOptions();
       this._initializeSelection();
     });
+    this.optionGroups.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+      this.renderGroupOptions();
+    });
   }
 
   ngDoCheck() {
@@ -724,6 +761,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
           this.overlayDir.overlayRef.overlayElement) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
+      // this._moveViewRefsToOverlay();
       this._highlightCorrectOption();
     });
   }
@@ -731,6 +769,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     if (this._panelOpen) {
+    console.log(`close`)
+      // this._moveViewRefsFromOverlay();
       this._panelOpen = false;
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
@@ -1020,7 +1060,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionData = data;
-          this.renderOptions();
+          if (this._panelOpen) {
+            this.renderOptions();
+          }
         });
     }
   }
@@ -1227,6 +1269,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       .pipe(takeUntil(changedOrDestroyed), filter(event => event.isUserInput))
       .subscribe(event => {
         this._onSelect(event.source);
+        console.log(`select `, event.source)
         if (!this.multiple && this._panelOpen) {
           this.close();
           this.focus();

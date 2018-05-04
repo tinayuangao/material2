@@ -114,35 +114,35 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
   </mat-card>
 
 
-  <mat-card>
-    <mat-card-subtitle>compareWith</mat-card-subtitle>
-    <mat-card-content>
-      <mat-form-field [color]="drinksTheme">
-        <mat-label>Drink</mat-label>
-        <mat-select [(ngModel)]="currentDrinkObject"
-                    [required]="drinkObjectRequired"
-                    [compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"
-                    #drinkObjectControl="ngModel">
-          <mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">
-            {{ drink.viewValue }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <p> Value: {{ currentDrinkObject | json }} </p>
-      <p> Touched: {{ drinkObjectControl.touched }} </p>
-      <p> Dirty: {{ drinkObjectControl.dirty }} </p>
-      <p> Status: {{ drinkObjectControl.control?.status }} </p>
-      <p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>
+  <!--<mat-card>-->
+    <!--<mat-card-subtitle>compareWith</mat-card-subtitle>-->
+    <!--<mat-card-content>-->
+      <!--<mat-form-field [color]="drinksTheme">-->
+        <!--<mat-label>Drink</mat-label>-->
+        <!--<mat-select [(ngModel)]="currentDrinkObject"-->
+                    <!--[required]="drinkObjectRequired"-->
+                    <!--[compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"-->
+                    <!--#drinkObjectControl="ngModel">-->
+          <!--<mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">-->
+            <!--{{ drink.viewValue }}-->
+          <!--</mat-option>-->
+        <!--</mat-select>-->
+      <!--</mat-form-field>-->
+      <!--<p> Value: {{ currentDrinkObject | json }} </p>-->
+      <!--<p> Touched: {{ drinkObjectControl.touched }} </p>-->
+      <!--<p> Dirty: {{ drinkObjectControl.dirty }} </p>-->
+      <!--<p> Status: {{ drinkObjectControl.control?.status }} </p>-->
+      <!--<p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>-->
 
-      <button mat-button (click)="reassignDrinkByCopy()"
-              matTooltip="This action should clear the display value when comparing by reference.">
-        REASSIGN DRINK BY COPY
-      </button>
-      <button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>
-      <button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>
-      <button mat-button (click)="drinkObjectControl.reset()">RESET</button>
-    </mat-card-content>
-  </mat-card>
+      <!--<button mat-button (click)="reassignDrinkByCopy()"-->
+              <!--matTooltip="This action should clear the display value when comparing by reference.">-->
+        <!--REASSIGN DRINK BY COPY-->
+      <!--</button>-->
+      <!--<button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>-->
+      <!--<button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>-->
+      <!--<button mat-button (click)="drinkObjectControl.reset()">RESET</button>-->
+    <!--</mat-card-content>-->
+  <!--</mat-card>-->
 
   <div *ngIf="showSelect">
     <mat-card>
@@ -298,55 +298,55 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
     </mat-card>
 
 
-    <mat-card>
-      <mat-card-subtitle>compareWith</mat-card-subtitle>
-      <mat-card-content>
-        <mat-form-field [color]="drinksTheme">
-          <mat-label>Drink</mat-label>
-          <mat-select [(ngModel)]="currentDrinkObject"
-                      [required]="drinkObjectRequired"
-                      [compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"
-                      #drinkObjectControl="ngModel">
-            <mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">
-              {{ drink.viewValue }}
-            </mat-option>mat
-          </mat-select>
-        </mat-form-field>
-        <p> Value: {{ currentDrinkObject | json }} </p>
-        <p> Touched: {{ drinkObjectControl.touched }} </p>
-        <p> Dirty: {{ drinkObjectControl.dirty }} </p>
-        <p> Status: {{ drinkObjectControl.control?.status }} </p>
-        <p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>compareWith</mat-card-subtitle>-->
+      <!--<mat-card-content>-->
+        <!--<mat-form-field [color]="drinksTheme">-->
+          <!--<mat-label>Drink</mat-label>-->
+          <!--<mat-select [(ngModel)]="currentDrinkObject"-->
+                      <!--[required]="drinkObjectRequired"-->
+                      <!--[compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"-->
+                      <!--#drinkObjectControl="ngModel">-->
+            <!--<mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">-->
+              <!--{{ drink.viewValue }}-->
+            <!--</mat-option>mat-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
+        <!--<p> Value: {{ currentDrinkObject | json }} </p>-->
+        <!--<p> Touched: {{ drinkObjectControl.touched }} </p>-->
+        <!--<p> Dirty: {{ drinkObjectControl.dirty }} </p>-->
+        <!--<p> Status: {{ drinkObjectControl.control?.status }} </p>-->
+        <!--<p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>-->
 
-        <button mat-button (click)="reassignDrinkByCopy()"
-                matTooltip="This action should clear the display value when comparing by reference.">
-          REASSIGN DRINK BY COPY
-        </button>
-        <button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>
-        <button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>
-        <button mat-button (click)="drinkObjectControl.reset()">RESET</button>
-      </mat-card-content>
-    </mat-card>
+        <!--<button mat-button (click)="reassignDrinkByCopy()"-->
+                <!--matTooltip="This action should clear the display value when comparing by reference.">-->
+          <!--REASSIGN DRINK BY COPY-->
+        <!--</button>-->
+        <!--<button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>-->
+        <!--<button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>-->
+        <!--<button mat-button (click)="drinkObjectControl.reset()">RESET</button>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
 
-    <mat-card>
-      <mat-card-subtitle>With template</mat-card-subtitle>
-      <mat-card-content>
-        <mat-form-field [color]="drinksTheme">
-          <mat-label>Drink</mat-label>
-          <mat-select [options]="drinks" [optionFilterable]="true" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel">
-            <mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option">
-            <span [class.my-option-selected]="selected">
-              {{option.viewValue}}
-            </span>
-            </mat-option>
-          </mat-select>
-          <p> Value: {{ currentDrink2 | json}} </p>
-          <p> Touched: {{ drinkControl2.touched }} </p>
-          <p> Dirty: {{ drinkControl2.dirty }} </p>
-          <p> Status: {{ drinkControl2.control?.status }} </p>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>With template</mat-card-subtitle>-->
+      <!--<mat-card-content>-->
+        <!--<mat-form-field [color]="drinksTheme">-->
+          <!--<mat-label>Drink</mat-label>-->
+          <!--<mat-select [options]="drinks" [optionFilterable]="true" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel">-->
+            <!--<mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option">-->
+            <!--<span [class.my-option-selected]="selected">-->
+              <!--{{option.viewValue}}-->
+            <!--</span>-->
+            <!--</mat-option>-->
+          <!--</mat-select>-->
+          <!--<p> Value: {{ currentDrink2 | json}} </p>-->
+          <!--<p> Touched: {{ drinkControl2.touched }} </p>-->
+          <!--<p> Dirty: {{ drinkControl2.dirty }} </p>-->
+          <!--<p> Status: {{ drinkControl2.control?.status }} </p>-->
+        <!--</mat-form-field>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
     <div *ngIf="showSelect">
       <mat-card>
         <mat-card-subtitle>formControl</mat-card-subtitle>
