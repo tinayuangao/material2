@@ -59,22 +59,13 @@
       (@fadeInContent.done)="_onFadeInDone()">
       <ng-content></ng-content>
 
-      <div *ngIf="panelOpen">
-        <ng-container *ngTemplateOutlet="selectOptionOutlet"></ng-container>
+      <div aria-hidden="true" role="presentation">
+        <ng-container matOptionOutlet></ng-container>
       </div>
     </div>
   </div>
 </ng-template>
 
-<ng-template #selectOptionOutlet>
-  <div aria-hidden="true" role="presentation">
-    <ng-container matOptionOutlet></ng-container>
-  </div>
-</ng-template>
-
-<div *ngIf="!panelOpen" class="cdk-visually-hidden">
-  <ng-container *ngTemplateOutlet="selectOptionOutlet"></ng-container>
-</div>
 
 <!-- Listbox and options are always in the DOM and do not use the user's template.
      The listbox must be `display: none` while the combobox is not expanded so that

@@ -12,7 +12,7 @@ import {NgModule} from '@angular/core';
 import {MatCommonModule, MatOptionModule} from '@angular/material/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MAT_SELECT_SCROLL_STRATEGY_PROVIDER, MatSelect, MatSelectTrigger, MatOptionDef, MatOptionGroupDef, MatOptionOverlayOutlet} from './select';
+import {MAT_SELECT_SCROLL_STRATEGY_PROVIDER, MatSelect, MatSelectTrigger, MatOptionDef, MatOptionGroupDef} from './select';
 
 
 @NgModule({
@@ -31,9 +31,8 @@ import {MAT_SELECT_SCROLL_STRATEGY_PROVIDER, MatSelect, MatSelectTrigger, MatOpt
     MatCommonModule,
     MatOptionDef,
     MatOptionGroupDef,
-    MatOptionOverlayOutlet
   ],
-  declarations: [MatSelect, MatSelectTrigger, MatOptionDef, MatOptionGroupDef, MatOptionOverlayOutlet],
+  declarations: [MatSelect, MatSelectTrigger, MatOptionDef, MatOptionGroupDef],
   providers: [MAT_SELECT_SCROLL_STRATEGY_PROVIDER]
 })
 export class MatSelectModule {}
