@@ -333,7 +333,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field [color]="drinksTheme">
           <mat-label>Drink</mat-label>
-          <mat-select [options]="drinks" [optionFilterable]="true" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel">
+          <mat-select [options]="drinks" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel">
             <mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option">
             <span [class.my-option-selected]="selected">
               {{option.viewValue}}

@@ -59,7 +59,6 @@ import {
   ViewChildren,
   ViewContainerRef,
   ViewEncapsulation,
-  ViewRef
 } from '@angular/core';
 import {ControlValueAccessor, FormGroupDirective, NgControl, NgForm} from '@angular/forms';
 import {
@@ -219,78 +218,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     AfterViewInit, OnChanges, OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable,
     HasTabIndex, MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple, CollectionViewer {
 
-  ngAfterViewInit() {
-    this.optionOutlet.changes.pipe(takeUntil(this._destroy)).subscribe(() => {
-      this.renderOptions();
-    });
-
-    this.groupOptionOutlet.changes.pipe(takeUntil(this._destroy)).subscribe(() => {
-      this.renderGroupOptions();
-    });
-  }
-
-  renderGroupOptions() {
-    // In the real implementation this will use the `Overlay` service.
-    Promise.resolve().then(() => {
-      let counter = 0;
-      if (this.groupOptionOutlet && this.groupOptionOutlet.length && this.optionDataGroups) {
-        const outlets = this.groupOptionOutlet.toArray();
-        for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
-          outlets[i].viewContainerRef.clear();
-          const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
-          options.forEach((option, j) => {
-            this._renderOption(outlets[i].viewContainerRef, option, j, counter++);
-            MatOption.mostRecentOption.group = this.optionGroups[i];
-          });
-        }
-      }
-    });
-  }
-
-  renderOptions() {
-    // In the real implementation this will use the `Overlay` service.
-     Promise.resolve().then(() => {
-       console.log(`render options`)
-      if (this.optionOutlet && this.optionOutlet.first) {
-        this.optionOutlet.first.viewContainerRef.clear();
-        if (this.optionData) {
-          for (let i = 0; i < this.optionData.length; i++) {
-            this._renderOption(this.optionOutlet.first.viewContainerRef, this.optionData[i], i);
-          }
-        } else if (this.optionDataGroups) {
-          for (let i = 0; i < this.optionDataGroups.length; i++) {
-            this._renderGroup(this.optionOutlet.first.viewContainerRef, this.optionDataGroups[i], i);
-          }
-        }
-      }
-    });
-  }
-
-  private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
-    viewContainerRef.createEmbeddedView(
-      this.optionGroupTemplate.templateRef,
-      { 
-        $implicit: group,
-        group: group,
-        index: index,
-      });
-  }
-
-  private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number,
-      counter: number = index) {
-    viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
-      {
-        $implicit: option,
-        option: option,
-        index: index,
-      });
-    if (this._optionStatus[counter]) { // restore data if we have
-      MatOption.mostRecentOption.restoreStatus(this._optionStatus[counter]);
-    } else {
-      MatOption.mostRecentOption.value = option;
-    }
-  }
-
   /** Whether or not the overlay panel is open. */
   private _panelOpen = false;
 
@@ -321,6 +248,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Unique id for the selected value label. */
   _labelId = `${this._uid}-label`;
 
+  /** Saved MatOption status */
   _optionStatus: MatOptionBase[] = [];
 
   /** The last measured value for the trigger's client bounding rect. */
@@ -393,13 +321,15 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** A name for this control that can be used by `mat-form-field`. */
   controlType = 'mat-select';
 
+  /** View change for data source */
+  viewChange =
+      new BehaviorSubject<{start: number, end: number}>({start: 0, end: Number.MAX_VALUE});
+
   /** Data subscription */
   private _dataSubscription: Subscription | null;
 
-  /** Data subscription */
+  /** Data group subscription */
   private _dataGroupSubscription: Subscription | null;
-
-  private _activeOutlet: MatOptionOutlet;
 
   /** Trigger that opens the select. */
   @ViewChild('trigger') trigger: ElementRef;
@@ -432,7 +362,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   @ViewChildren(MatOptionOutlet) optionOutlet: QueryList<MatOptionOutlet>;
 
   /** The option outlet to render the options inside an option group. */
-  @ContentChildren(MatGroupOptionOutlet, { descendants: true }) groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
+  @ContentChildren(MatGroupOptionOutlet, { descendants: true })
+  groupOptionOutlet: QueryList<MatGroupOptionOutlet>;
 
   /**
    * Transform function to tranform data object to string for accessiblity
@@ -468,18 +399,10 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Options data for template style select list. */
   get optionData(): T[] { return this._optionData; }
-  set optionData(value: T[]) {
-    this._optionData = value;
-    this.stateChanges.next();
-  }
   private _optionData: T[];
 
   /** Option group data for template style select. */
   get optionDataGroups(): F[] { return this._optionDataGroups; }
-  set optionDataGroups(value: F[]) {
-    this._optionDataGroups = value;
-    this.stateChanges.next();
-  }
   private _optionDataGroups: F[];
 
   /** Placeholder to be shown if no value has been selected. */
@@ -582,8 +505,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       .pipe(take(1), switchMap(() => this.optionSelectionChanges));
   });
 
-   /** Event emitted when the select panel has been toggled. */
-   @Output() readonly openedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  /** Event emitted when the select panel has been toggled. */
+  @Output() readonly openedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   /** Event emitted when the select has been opened. */
   @Output('opened') readonly _openedStream: Observable<void> =
@@ -674,6 +597,77 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     this.stateChanges.complete();
   }
 
+  ngAfterViewInit() {
+    this.optionOutlet.changes.pipe(takeUntil(this._destroy)).subscribe(() => {
+      this._renderOptions();
+    });
+
+    this.groupOptionOutlet.changes.pipe(takeUntil(this._destroy)).subscribe(() => {
+      this._renderGroupOptions();
+    });
+  }
+
+  private _renderGroupOptions() {
+    // Promise.resolve().then(() => {
+      let counter = 0;
+      if (this.groupOptionOutlet && this.groupOptionOutlet.length && this.optionDataGroups) {
+        const outlets = this.groupOptionOutlet.toArray();
+        for (let i = 0; i < this.optionDataGroups.length && i < outlets.length; i++) {
+          outlets[i].viewContainerRef.clear();
+          const options = this.groupOptionsAccessor(this.optionDataGroups[i]);
+          options.forEach((option, j) => {
+            this._renderOption(outlets[i].viewContainerRef, option, j, counter++);
+            MatOption.mostRecentOption.group = this.optionGroups[i];
+          });
+        }
+      }
+    // });
+  }
+
+  private _renderOptions() {
+    // In the real implementation this will use the `Overlay` service.
+    Promise.resolve().then(() => {
+      console.log(`render options`)
+      if (this.optionOutlet && this.optionOutlet.first) {
+        this.optionOutlet.first.viewContainerRef.clear();
+        if (this.optionData) {
+          for (let i = 0; i < this.optionData.length; i++) {
+            this._renderOption(this.optionOutlet.first.viewContainerRef, this.optionData[i], i);
+          }
+        } else if (this.optionDataGroups) {
+          for (let i = 0; i < this.optionDataGroups.length; i++) {
+            this._renderGroup(this.optionOutlet.first.viewContainerRef, this.optionDataGroups[i], i);
+          }
+        }
+      }
+    });
+  }
+
+  private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
+    viewContainerRef.createEmbeddedView(
+      this.optionGroupTemplate.templateRef,
+      {
+        $implicit: group,
+        group: group,
+        index: index,
+      });
+  }
+
+  private _renderOption(viewContainerRef: ViewContainerRef, option: T, index: number,
+      counter: number = index) {
+    viewContainerRef.createEmbeddedView(this.optionTemplate.templateRef,
+      {
+        $implicit: option,
+        option: option,
+        index: index,
+      });
+    if (this._optionStatus[counter]) { // restore data if we have
+      MatOption.mostRecentOption.restoreStatus(this._optionStatus[counter]);
+    } else {
+      MatOption.mostRecentOption.value = option;
+    }
+  }
+
   /** Toggles the overlay panel open or closed. */
   toggle(): void {
     this.panelOpen ? this.close() : this.open();
@@ -719,8 +713,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     }
   }
 
-  _saveOptionStatus() {
-    this._optionStatus = this.options.map(option => option as MatOptionBase);
+  private _saveOptionStatus() {
+    this._optionStatus = this.options.map(option => option.extractStatus());
+    console.log(this._optionStatus)
   }
 
   /**
@@ -1005,7 +1000,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionData = data;
-          this.renderOptions();
+          this._renderOptions();
         });
     }
   }
@@ -1056,7 +1051,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataGroupSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionDataGroups = data;
-          this.renderGroupOptions();
+          this._renderOptions();
         });
     }
   }
@@ -1301,12 +1296,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   private _setOptionIds() {
     this._optionIds = this.options.map(option => option.id).join(' ');
   }
-  
-  private _setOptionData() {
-    if (!this._optionData) {
-      this._optionData = this.options.map(option => option.value);
-    }
-  }
 
   /**
    * Highlights the selected item. If no option is selected, it will highlight
@@ -1348,11 +1337,19 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.options && this.selectedOption) {
       const option = this.selectedOption;
       return this.options.reduce((result: number, current: MatOption, index: number) => {
-        return result === undefined ? (option === current ? index : undefined) : result;
+        return result === undefined ? (option.id === current.id ? index : undefined) : result;
+      }, undefined);
+    } else if (this._optionStatus && this.selectedOption) {
+      const id = this.selectedOption.id
+      return this._optionStatus.reduce((result: number, current: MatOptionBase, index: number) => {
+        return result === undefined ? (id === current._id ? index : undefined) : result;
       }, undefined);
     } else if (this.optionData) {
+      // TODO delete these
+      console.log(`selected index use option data`)
       return Math.max(this.optionData.indexOf(selected), 0);
     } else if (this.optionDataGroups) {
+      console.log(`selected index use option group data`)
       let counter = 0;
       let found = false;
       this.optionDataGroups.forEach(group => {
@@ -1411,10 +1408,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     return Math.min(Math.max(0, optimalScrollPosition), maxScroll);
   }
 
-  get optionIds() {
-    return this.optionTemplate ? this._listboxId : (this.panelOpen ? this._optionIds : null);
-  }
-
   /** Returns the aria-label of the select component. */
   get _ariaLabel(): string | null {
     // If an ariaLabelledby value has been set, the select should not overwrite the
@@ -1427,11 +1420,16 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
       this._keyManager.activeItem.id;
     } else {
-      // TODO(tinayuangao): get the active id from selected
+      // TODO(tinayuangao): get the active id from selected value
     }
 
     return null;
   }
+
+  _getAriaOwns() {
+    return this.optionTemplate ? this._listboxId : (this.panelOpen ? this._optionIds : null);
+  }
+
 
   /**
    * Sets the x-offset of the overlay panel in relation to the trigger's top start corner.
@@ -1610,18 +1608,13 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.options.length) {
       return this.options.length + this.optionGroups.length;
     } else if (this._optionStatus) {
-      console.log(`use options status`);
       return this._optionStatus.length
     } else if (this.optionData) {
-      // TODO
-      console.log(`use option data`)
       return this.optionData.length;
     } else if (this.optionDataGroups) {
-      // TODO
-      console.log(`use group data`)
-      return this.optionDataGroups.length + 
-          this.optionDataGroups.map(group => 
-              this.groupOptionsAccessor(group).length).reduce((previousValue: any, currentValue: number) => previousValue + currentValue, 0);
+      return this.optionDataGroups.length + this.optionDataGroups.map(group =>
+          this.groupOptionsAccessor(group).length).reduce(
+              (previousValue: any, currentValue: number) => previousValue + currentValue, 0);
     }
     return 0;
   }
@@ -1655,34 +1648,4 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   get shouldLabelFloat(): boolean {
     return this._panelOpen || !this.empty;
   }
-
-  filterText: string = '';
-  filter(filterText: string) {
-    if (this.optionFilterable) {
-      this.filteredData = this.optionData.filter(data =>
-          this.filterFunction(data, filterText));
-    } else {
-      this.filteredData = this.optionData;
-    }
-  }
-
-  /** Filtered data options. If there's no filter function, it's the same as `optionData`. */
-  filteredData: T[] = [];
-
-
-  /**
-   * The filter function to filter the option list.
-   * The input box for filter only display when there's a filter function.
-   */
-  @Input()
-  filterFunction: ((T, string) => boolean) =   (opt: {}, filterText: string) => {
-    return `${opt}`.indexOf(filterText) > -1;
-  };
-
-  /** Whether we have a input box to filter the options. */
-  @Input()
-  optionFilterable: boolean;
-
-  viewChange =
-      new BehaviorSubject<{start: number, end: number}>({start: 0, end: Number.MAX_VALUE});
 }

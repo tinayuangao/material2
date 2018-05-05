@@ -149,6 +149,11 @@ export class MatOption extends MatOptionBase implements AfterViewChecked, OnDest
     this.value = optionStatus.value;
   }
 
+  extractStatus(): MatOptionBase {
+    return <MatOptionBase>{_selected: this._selected, _active: this._active, _disabled: this.disabled,
+     _id: this._id, _mostRecentViewValue: this._mostRecentViewValue, value: this.value};
+  }
+
   /**
    * Whether or not the option is currently active and ready to be selected.
    * An active option displays styles as if it is focused, but the

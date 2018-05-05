@@ -7,7 +7,7 @@
      [attr.aria-required]="required.toString()"
      [attr.aria-disabled]="disabled.toString()"
      [attr.aria-invalid]="errorState"
-     [attr.aria-owns]="optionIds"
+     [attr.aria-owns]="_getAriaOwns()"
      [attr.aria-describedby]="_ariaDescribedby || null"
      [attr.aria-activedescendant]="_getAriaActiveDescendant()"
      [attr.aria-expanded]="panelOpen"
