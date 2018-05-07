@@ -66,8 +66,7 @@ export class MatOptionBase {
   _id: string;
   _mostRecentViewValue: string;
   value: any;
-
-
+  group: MatOptgroup;
 }
 
 /**
@@ -146,11 +145,19 @@ export class MatOption extends MatOptionBase implements AfterViewChecked, OnDest
     this._id = optionStatus._id;
     this._mostRecentViewValue = optionStatus._mostRecentViewValue;
     this.value = optionStatus.value;
+    if (optionStatus.group) { this.group = optionStatus.group; }
   }
 
   extractStatus(): MatOptionBase {
-    return <MatOptionBase>{_selected: this._selected, _active: this._active, _disabled: this.disabled,
-     _id: this._id, _mostRecentViewValue: this._mostRecentViewValue, value: this.value};
+    return <MatOptionBase>{
+      _selected: this._selected,
+      _active: this._active,
+      _disabled: this.disabled,
+     _id: this._id,
+      _mostRecentViewValue: this._mostRecentViewValue,
+      value: this.value,
+      group: this.group
+    };
   }
 
   /**
