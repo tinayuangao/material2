@@ -4296,28 +4296,6 @@ class SelectWithGroups {
 }
 
 @Component({
-  selector: 'select-with-template',
-  template: `
-    <mat-form-field>
-      <mat-select placeholder="Pokemon" [optionData]="pokemonTypes" [formControl]="control">
-        <mat-option *matOptionDef="let option" [value]="option">
-          {{ option.viewValue }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  `
-})
-class SelectWithTemplate {
-  control = new FormControl();
-  pokemonTypes = [
-    {
-      name: 'Grass',
-      pokemon: [{ value: 'bulbasaur-0', viewValue: 'Bulbasaur' }]
-    }
-  ];
-}
-
-@Component({
   selector: 'select-with-groups',
   template: `
     <mat-form-field>

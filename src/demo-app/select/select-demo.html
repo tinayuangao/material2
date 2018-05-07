@@ -234,9 +234,9 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field [color]="pokemonTheme">
           <mat-label>Pokemon</mat-label>
-          <mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"
+          <mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform"
                       [required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl2="ngModel">
-            <mat-option *matOptionDef="let creature">
+            <mat-option *matOptionDef="let creature" [value]="creature.value">
                <span [class.my-option-selected]="selected">{{creature.viewValue}}</span>
             </mat-option>
           </mat-select>
@@ -385,6 +385,17 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       </mat-card>
     </div>
 
+    <mat-form-field>
+      <mat-select placeholder="Food"
+                  [options]="foods"
+                  [formControl]="control"
+                  [optionTextTransform]="viewValueTransform"
+                  disableOptionCentering>
+        <mat-option *matOptionDef="let food" [value]="food.value">
+          {{ food.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
 </div>
 <div style="height: 500px">This div is for testing scrolled selects.</div>

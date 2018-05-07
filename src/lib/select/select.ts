@@ -375,6 +375,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   @Input()
   groupOptionsAccessor: (_: F) => T[] = _ => [];
 
+  /** Function to extact the MatOption value from option data */
+  @Input() optionValueAccessor: (T) => any = o => o;
+
   @Input('options')
   get optionDataSource(): DataSource<T> | Observable<T[]> | T[] { return this._optionDataSource; }
   set optionDataSource(optionDataSource: DataSource<T> | Observable<T[]> | T[]) {
@@ -1084,8 +1087,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     return this._selectionModel.selected[0];
   }
 
-  /** Find the corresponding MatOptionBase by its value. */
-  private _findOptionByValue(option: MatOptionBase, value: any): boolean {
+  /** Find whether the corresponding MatOptionBase matches the given value. */
+  private _isOptionValueEquals(option: MatOptionBase, value: any): boolean {
     try {
       // Treat null as a special reset value.
       return option.value != null && this._compareWith(option.value,  value);
@@ -1103,8 +1106,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
    * @returns Option that has the corresponding value.
    */
   private _selectValue(value: any, isUserInput = false): MatOption | undefined {
-    const correspondingOption = this.options.find(opt => this._findOptionByValue(opt, value));
-    const optionBase = this._optionStatus.find(opt => this._findOptionByValue(opt, value));
+    const correspondingOption = this.options.find(opt => this._isOptionValueEquals(opt, value));
+    const optionBase = this._optionStatus.find(opt => this._isOptionValueEquals(opt, value));
 
     if (correspondingOption) {
       isUserInput ? correspondingOption._selectViaInteraction() : correspondingOption.select();
@@ -1113,6 +1116,10 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this.stateChanges.next();
     } else if (optionBase) {
       this._selectionModel.select(optionBase);
+    } else if (this.optionData) {
+      console.log(`none`, this.options, this._optionStatus)
+    } else if (this.optionDataGroups) {
+      console.log(`option groups`)
     }
     this._updateTriggerValue();
 
@@ -1367,6 +1374,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
       this._keyManager.activeItem.id;
     } else {
+      return 'special return';
       // TODO(tinayuangao): get the active id from selected value
     }
 

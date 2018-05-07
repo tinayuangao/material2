@@ -37,12 +37,12 @@ export class SelectDemo {
   pokemonTheme = 'primary';
   compareByValue = true;
 
-  foods = [
-    {value: null, viewValue: 'None'},
-    {value: 'steak-0', viewValue: 'Steak'},
-    {value: 'pizza-1', viewValue: 'Pizza'},
-    {value: 'tacos-2', viewValue: 'Tacos'}
-  ];
+  // foods = [
+  //   {value: null, viewValue: 'None'},
+  //   {value: 'steak-0', viewValue: 'Steak'},
+  //   {value: 'pizza-1', viewValue: 'Pizza'},
+  //   {value: 'tacos-2', viewValue: 'Tacos'}
+  // ];
 
   drinks = [
     {value: 'coke-0', viewValue: 'Coke'},
@@ -154,4 +154,17 @@ export class SelectDemo {
     return group.pokemon;
   }
   optionValueAccessor = (option: {value: any}) => option.value;
+
+  foods: any[] = [
+    { value: 'steak-0', viewValue: 'Steak' },
+    { value: 'pizza-1', viewValue: 'Pizza' },
+    { value: 'tacos-2', viewValue: 'Tacos'},
+    { value: 'sandwich-3', viewValue: 'Sandwich' },
+    { value: 'chips-4', viewValue: 'Chips' },
+    { value: 'eggs-5', viewValue: 'Eggs' },
+    { value: 'pasta-6', viewValue: 'Pasta' },
+    { value: 'sushi-7', viewValue: 'Sushi' },
+  ];
+  control = new FormControl('pizza-1');
+  viewValueTransform = (option: {viewValue: string}) => option.viewValue;
 }
