@@ -137,7 +137,6 @@ export class MatOption extends MatOptionBase implements AfterViewChecked, OnDest
     @Optional() public group: MatOptgroup) {
     super();
     MatOption.mostRecentOption = this;
-    group && console.log(`group is `, group, group.disabled)
   }
 
   restoreStatus(optionStatus: MatOptionBase) {

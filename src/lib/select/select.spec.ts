@@ -127,67 +127,69 @@ describe('MatSelect', () => {
       ]);
     }));
 
-    describe('accessibility', () => {
+    fdescribe('accessibility', () => {
       describe('for select', () => {
         let fixture: ComponentFixture<BasicSelect>;
         let select: HTMLElement;
+        let trigger: HTMLElement;
 
         beforeEach(fakeAsync(() => {
           fixture = TestBed.createComponent(BasicSelect);
           fixture.detectChanges();
           select = fixture.debugElement.query(By.css('mat-select')).nativeElement;
+          trigger = select.querySelector('.mat-select-trigger')! as HTMLElement;
         }));
 
-        it('should set the role of the select to listbox', fakeAsync(() => {
-          const selectTrigger = fixture.debugElement.query(By.css('mat-select-trigger')).nativeElement;
-          expect(selectTrigger.getAttribute('role')).toEqual('listbox');
-          // expect(select.getAttribute('role')).toEqual('listbox');
+        it('should set the role of the select to combobox', fakeAsync(() => {
+          expect(trigger.getAttribute('role')).toEqual('combobox');
         }));
 
         it('should set the aria label of the select to the placeholder', fakeAsync(() => {
-          const selectTrigger = fixture.debugElement.query(By.css('mat-select-trigger')).nativeElement;
-          expect(selectTrigger.getAttribute('aria-label')).toEqual('Food');
+          expect(trigger.getAttribute('aria-label')).toEqual('Food');
         }));
 
         it('should support setting a custom aria-label', fakeAsync(() => {
           fixture.componentInstance.ariaLabel = 'Custom Label';
           fixture.detectChanges();
 
-          expect(select.getAttribute('aria-label')).toEqual('Custom Label');
+          expect(trigger.getAttribute('aria-label')).toEqual('Custom Label');
         }));
 
         it('should not set an aria-label if aria-labelledby is specified', fakeAsync(() => {
           fixture.componentInstance.ariaLabelledby = 'myLabelId';
           fixture.detectChanges();
 
-          expect(select.getAttribute('aria-label')).toBeFalsy('Expected no aria-label to be set.');
-          expect(select.getAttribute('aria-labelledby')).toBe('myLabelId');
+          expect(trigger.getAttribute('aria-label')).toBeFalsy('Expected no aria-label to be set.');
+          expect(trigger.getAttribute('aria-labelledby')).toBe('myLabelId');
         }));
 
-        it('should not have aria-labelledby in the DOM if it`s not specified', fakeAsync(() => {
+        it('should have label as aria-labelledby in the DOM if it`s not specified', fakeAsync(() => {
+          const label = select.querySelector('.mat-select-value')! as HTMLElement;
+          const labelId = label.getAttribute('id');
           fixture.detectChanges();
-          expect(select.hasAttribute('aria-labelledby')).toBeFalsy();
+          expect(trigger.hasAttribute('aria-labelledby')).toBeTruthy();
+          expect(trigger.getAttribute('aria-labelledby')).toBe(labelId);
         }));
 
         it('should set the tabindex of the select to 0 by default', fakeAsync(() => {
-          expect(select.getAttribute('tabindex')).toEqual('0');
+          expect(trigger.getAttribute('tabindex')).toEqual('0');
         }));
 
         it('should be able to override the tabindex', fakeAsync(() => {
           fixture.componentInstance.tabIndexOverride = 3;
           fixture.detectChanges();
 
-          expect(select.getAttribute('tabindex')).toBe('3');
+          expect(trigger.getAttribute('tabindex')).toBe('3');
         }));
 
         it('should set aria-required for required selects', fakeAsync(() => {
-          expect(select.getAttribute('aria-required'))
+          expect(trigger.getAttribute('aria-required'))
               .toEqual('false', `Expected aria-required attr to be false for normal selects.`);
 
           fixture.componentInstance.isRequired = true;
           fixture.detectChanges();
 
-          expect(select.getAttribute('aria-required'))
+          expect(trigger.getAttribute('aria-required'))
               .toEqual('true', `Expected aria-required attr to be true for required selects.`);
         }));
 
@@ -203,34 +205,34 @@ describe('MatSelect', () => {
         }));
 
         it('should set aria-invalid for selects that are invalid and touched', fakeAsync(() => {
-          expect(select.getAttribute('aria-invalid'))
+          expect(trigger.getAttribute('aria-invalid'))
               .toEqual('false', `Expected aria-invalid attr to be false for valid selects.`);
 
           fixture.componentInstance.isRequired = true;
           fixture.componentInstance.control.markAsTouched();
           fixture.detectChanges();
 
-          expect(select.getAttribute('aria-invalid'))
+          expect(trigger.getAttribute('aria-invalid'))
               .toEqual('true', `Expected aria-invalid attr to be true for invalid selects.`);
         }));
 
         it('should set aria-disabled for disabled selects', fakeAsync(() => {
-          expect(select.getAttribute('aria-disabled')).toEqual('false');
+          expect(trigger.getAttribute('aria-disabled')).toEqual('false');
 
           fixture.componentInstance.control.disable();
           fixture.detectChanges();
 
-          expect(select.getAttribute('aria-disabled')).toEqual('true');
+          expect(trigger.getAttribute('aria-disabled')).toEqual('true');
         }));
 
         it('should set the tabindex of the select to -1 if disabled', fakeAsync(() => {
           fixture.componentInstance.control.disable();
           fixture.detectChanges();
-          expect(select.getAttribute('tabindex')).toEqual('-1');
+          expect(trigger.getAttribute('tabindex')).toEqual('-1');
 
           fixture.componentInstance.control.enable();
           fixture.detectChanges();
-          expect(select.getAttribute('tabindex')).toEqual('0');
+          expect(trigger.getAttribute('tabindex')).toEqual('0');
         }));
 
         it('should select options via the UP/DOWN arrow keys on a closed select', fakeAsync(() => {
@@ -312,6 +314,7 @@ describe('MatSelect', () => {
           Object.defineProperty(event, 'altKey', {get: () => true});
 
           dispatchEvent(select, event);
+          flush();
 
           expect(selectInstance.panelOpen).toBe(true, 'Expected select to be open.');
           expect(formControl.value).toBeFalsy('Expected value not to have changed.');
@@ -329,6 +332,7 @@ describe('MatSelect', () => {
           Object.defineProperty(event, 'altKey', {get: () => true});
 
           dispatchEvent(select, event);
+          flush();
 
           expect(selectInstance.panelOpen).toBe(false, 'Expected select to be closed.');
           expect(event.defaultPrevented).toBe(true, 'Expected default action to be prevented.');
@@ -614,6 +618,9 @@ describe('MatSelect', () => {
         // Having `aria-hidden` on the trigger avoids issues where
         // screen readers read out the wrong amount of options.
         it('should set aria-hidden on the trigger element', fakeAsync(() => {
+          fixture.componentInstance.select.open();
+          fixture.detectChanges();
+
           const trigger = fixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
 
           expect(trigger.getAttribute('aria-hidden'))
@@ -626,13 +633,13 @@ describe('MatSelect', () => {
           const multiFixture = TestBed.createComponent(MultiSelect);
 
           multiFixture.detectChanges();
-          select = multiFixture.debugElement.query(By.css('mat-select')).nativeElement;
+          trigger = multiFixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
 
-          expect(select.getAttribute('aria-multiselectable')).toBe('true');
+          expect(trigger.getAttribute('aria-multiselectable')).toBe('true');
         }));
 
         it('should set aria-multiselectable false on single-selection instances', fakeAsync(() => {
-          expect(select.getAttribute('aria-multiselectable')).toBe('false');
+          expect(trigger.getAttribute('aria-multiselectable')).toBe('false');
         }));
 
         it('should set aria-activedescendant only while the panel is open', fakeAsync(() => {

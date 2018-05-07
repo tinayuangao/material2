@@ -474,12 +474,12 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Input that can be used to specify the `aria-labelledby` attribute. */
   @Input('aria-labelledby')
   get ariaLabelledby(): string {
-    return `${this._ariaLabelledby} ${this._labelId}`;
+    return this._ariaLabelledby ? this._ariaLabelledby : this._labelId;
   }
   set ariaLabelledby(value: string) {
     this._ariaLabelledby = value;
   }
-  _ariaLabelledby: string = '';
+  _ariaLabelledby: string;
 
 
   /** An object used to control when error messages are shown. */
@@ -627,7 +627,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   private _renderOptions() {
     // In the real implementation this will use the `Overlay` service.
     Promise.resolve().then(() => {
-      console.log(`render options`)
       if (this.optionOutlet && this.optionOutlet.first) {
         this.optionOutlet.first.viewContainerRef.clear();
         if (this.optionData) {
@@ -715,7 +714,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   private _saveOptionStatus() {
     this._optionStatus = this.options.map(option => option.extractStatus());
-    console.log(this._optionStatus)
   }
 
   /**
@@ -1346,10 +1344,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       }, undefined);
     } else if (this.optionData) {
       // TODO delete these
-      console.log(`selected index use option data`)
       return Math.max(this.optionData.indexOf(selected), 0);
     } else if (this.optionDataGroups) {
-      console.log(`selected index use option group data`)
       let counter = 0;
       let found = false;
       this.optionDataGroups.forEach(group => {
@@ -1412,7 +1408,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   get _ariaLabel(): string | null {
     // If an ariaLabelledby value has been set, the select should not overwrite the
     // `aria-labelledby` value by setting the ariaLabel to the placeholder.
-    return this.ariaLabelledby ? null : this.ariaLabel || this.placeholder;
+    return this._ariaLabelledby ? null : this.ariaLabel || this.placeholder;
   }
 
   /** Determines the `aria-activedescendant` to be set on the host. */
