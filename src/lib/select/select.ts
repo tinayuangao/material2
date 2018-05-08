@@ -376,6 +376,14 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   @Input()
   groupOptionsAccessor: (_: F) => T[] = _ => [];
 
+  /** Read the group label for accessibility */
+  @Input()
+  groupLabelAccessor: (_: F) => string = o => `${o}`;
+
+  /** Whether the group is disabled */
+  @Input()
+  groupDisabledAccessor: (_: F) => boolean = _ => false;
+
   /** Function to extact the MatOption value from option data */
   @Input() optionValueAccessor: (T) => any = o => o;
 
@@ -987,9 +995,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     }
 
     this._optionDataSource = optionDataSource;
-    if (this.optionTemplate) {
-      this._observeOptionsRenderChanges();
-    }
+    this._observeOptionsRenderChanges();
   }
 
   /** Set up a subscription for the data provided by the data source. */
@@ -1088,8 +1094,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
           optionData: opt,
         });
         return <MatOptgroupStatus> {
-          disabled: false,
-          label: ''
+          disabled: this.groupDisabledAccessor(group),
+          label: this.groupLabelAccessor(group)
         }
       });
     }
@@ -1325,7 +1331,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
    * order that they have in the panel.
    */
   private _sortValues(): void {
-    if (this._multiple && !this.optionTemplate) {
+    if (this._multiple && !this.totalOptionData) {
       this._selectionModel.clear();
 
       this.options.forEach(option => {
@@ -1481,7 +1487,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   }
 
   _getAriaOwns() {
-    return this.optionTemplate ? this._listboxId : (this.panelOpen ? this._optionIds : null);
+    return this.totalOptionData ? this._listboxId : (this.panelOpen ? this._optionIds : null);
   }
 
 

@@ -812,6 +812,7 @@ describe('MatSelect with template', () => {
         }));
 
         fit('should set the appropriate role', fakeAsync(() => {
+          console.log(groups)
           expect(groups[0].getAttribute('role')).toBe('group');
         }));
 
