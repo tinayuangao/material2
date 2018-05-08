@@ -58,7 +58,7 @@ export interface MatOptionParentComponent {
 export const MAT_OPTION_PARENT_COMPONENT =
     new InjectionToken<MatOptionParentComponent>('MAT_OPTION_PARENT_COMPONENT');
 
-export class MatOptionStatus {
+export class MatOptionStatus<T=any> {
   active: boolean;
   selected: boolean;
   disabled: boolean;
@@ -66,6 +66,7 @@ export class MatOptionStatus {
   viewValue: string;
   value: any;
   group: MatOptgroup;
+  optionData: T;
 }
 
 /**
@@ -94,7 +95,7 @@ export class MatOptionStatus {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MatOption implements AfterViewChecked, OnDestroy {
+export class MatOption<T=any> implements AfterViewChecked, OnDestroy {
   static mostRecentOption:  MatOption;
   protected _selected = false;
   protected _active = false;
@@ -113,6 +114,9 @@ export class MatOption implements AfterViewChecked, OnDestroy {
 
   /** The form value of the option. */
   @Input() value: any;
+
+  /** The optoin value of the option. This may different from the value of the MatOption. */
+  @Input() optionData: T;
 
   /** Whether the option is disabled. */
   @Input()
@@ -142,6 +146,7 @@ export class MatOption implements AfterViewChecked, OnDestroy {
     this._disabled = optionStatus.disabled;
     this._id = optionStatus.id;
     this.value = optionStatus.value;
+    this.optionData = optionStatus.optionData;
     if (optionStatus.group) { this.group = optionStatus.group; }
   }
 
@@ -152,6 +157,7 @@ export class MatOption implements AfterViewChecked, OnDestroy {
       disabled: this.disabled,
       id: this._id,
       value: this.value,
+      optionData: this.optionData,
       group: this.group
     };
   }

@@ -776,7 +776,6 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
       // TODO(crisbeto): delimiter should be configurable for proper localization.
       this._triggerValue = selectedOptions.join(', ');
-
       return;
     }
 
@@ -950,7 +949,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Render an option group based on data. */
   private _renderGroup(viewContainerRef: ViewContainerRef, group: F, index: number) {
     viewContainerRef.createEmbeddedView(
-      this.optionGroupTemplate.templateRef, {$implicit: group, group: group, index: index});
+        this.optionGroupTemplate.templateRef, {$implicit: group, group: group, index: index});
   }
 
   /** Render an option based on data in given viewContainer. */
@@ -961,6 +960,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         option: option,
         index: index,
       });
+    MatOption.mostRecentOption.optionData = option;
 
   }
 
@@ -1085,6 +1085,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
           id: `${this._listboxId}-opt-${counter++}`,
           viewValue: this.optionTextTransform(opt),
           value: this.optionValueAccessor(opt),
+          optionData: opt,
         });
         return <MatOptgroupStatus> {
           disabled: false,
@@ -1098,19 +1099,19 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         id: `${this._listboxId}-opt-${index}`,
         viewValue: this.optionTextTransform(opt),
         value: this.optionValueAccessor(opt),
+        optionData: opt,
       });
     }
-    console.log(`option`, this._optionDataStatus,  this._optionGroupStatus)
   }
 
   private _saveOptionStatus() {
-    this._optionGroupStatus = this.optionGroups.map(group => group as MatOptgroupStatus);
-    const optionStatus = this.options.map(option => option.extractStatus());
+    this._optionGroupStatus = this.optionGroups.toArray().map(group => group as MatOptgroupStatus);
+    const optionStatus = this.options.toArray().map(option => option.extractStatus());
     if (this._optionDataGroups) {
       this._optionGroupDataStatus = [];
       for (let i = 0; i < this._optionDataGroups.length; i++) {
         const length = this.groupOptionsAccessor(this._optionDataGroups[i]).length;
-        this._optionGroupDataStatus[i] = optionStatus.slice(0, length);
+        this._optionGroupDataStatus[i] = optionStatus.splice(0, length);
       }
     } else {
       this._optionDataStatus = optionStatus;
@@ -1186,6 +1187,21 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       const option = this.totalOptionData.find(opt => this._isOptionDataMatch(value, opt))
       if (option) {
         this._optionSelectionModel.select(option);
+      }
+    }
+
+    if (this._optionDataStatus) {
+      const option = this._optionDataStatus.find(opt => this._compareWith(opt.value, value));
+      if (option) {
+        option.selected = true;
+      }
+    }
+
+    if (this._optionGroupStatus) {
+      const option = [].concat.apply([], this._optionGroupDataStatus)
+          .find(opt => this._compareWith(opt.value, value));
+      if (option) {
+        option.selected = true;
       }
     }
     this._updateTriggerValue();
@@ -1365,7 +1381,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Scrolls the active option into view. */
   private _scrollActiveOptionIntoView(): void {
-    const activeOptionIndex = this._keyManager.activeItemIndex || this._getSelectedOptionIndex() || 0;
+    const activeOptionIndex = this._keyManager.activeItemIndex ||
+        this._getSelectedOptionIndex() || 0;
     const labelCount = _countGroupLabelsBeforeOption(activeOptionIndex, this.options,
         this.optionGroups);
 
@@ -1391,8 +1408,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         .reduce((result: number, current: MatOption, index: number) => {
           return result === undefined ? (selected.id === current.id ? index : undefined) : result;
         }, undefined);
-    } else if (this._optionSelectionModel.selected && this._optionData) {
-      return this._optionData.indexOf(this._optionSelectionModel.selected[0]);
+    } else if (this._optionSelectionModel.selected && this.totalOptionData) {
+      return this.totalOptionData.indexOf(this._optionSelectionModel.selected[0]);
     }
   }
 
@@ -1644,8 +1661,9 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   private _getItemCount(): number {
     if (this.options.length) {
       return this.options.length + this.optionGroups.length;
-    } else if (this.optionDataGroups) {
-      return this.totalOptionData.length + (this.optionDataGroups ? this.optionDataGroups.length : 0);
+    } else if (this.totalOptionData) {
+      return this.totalOptionData.length +
+          (this.optionDataGroups ? this.optionDataGroups.length : 0);
     }
     return 0;
   }
