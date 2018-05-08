@@ -12,8 +12,11 @@ import {mixinDisabled, CanDisable} from '../common-behaviors/disabled';
 
 // Boilerplate for applying mixins to MatOptgroup.
 /** @docs-private */
-export class MatOptgroupBase { }
-export const _MatOptgroupMixinBase = mixinDisabled(MatOptgroupBase);
+export class MatOptgroupStatus {
+  label: string;
+  disabled: boolean;
+}
+export const _MatOptgroupMixinBase = mixinDisabled(MatOptgroupStatus);
 
 // Counter for unique group ids.
 let _uniqueOptgroupIdCounter = 0;

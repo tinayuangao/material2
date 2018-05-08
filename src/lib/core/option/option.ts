@@ -58,13 +58,12 @@ export interface MatOptionParentComponent {
 export const MAT_OPTION_PARENT_COMPONENT =
     new InjectionToken<MatOptionParentComponent>('MAT_OPTION_PARENT_COMPONENT');
 
-/** An interface for basic option operations */
-export class MatOptionBase {
-  _selected: boolean;
-  _active: boolean;
-  _disabled: boolean;
-  _id: string;
-  _mostRecentViewValue: string;
+export class MatOptionStatus {
+  active: boolean;
+  selected: boolean;
+  disabled: boolean;
+  id: string;
+  viewValue: string;
   value: any;
   group: MatOptgroup;
 }
@@ -95,13 +94,13 @@ export class MatOptionBase {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MatOption extends MatOptionBase implements AfterViewChecked, OnDestroy {
+export class MatOption implements AfterViewChecked, OnDestroy {
   static mostRecentOption:  MatOption;
-  _selected = false;
-  _active = false;
-  _disabled = false;
-  _id = `mat-option-${_uniqueIdCounter++}`;
-  _mostRecentViewValue = '';
+  protected _selected = false;
+  protected _active = false;
+  protected _disabled = false;
+  protected _id = `mat-option-${_uniqueIdCounter++}`;
+  protected _mostRecentViewValue = '';
 
   /** Whether the wrapping component is in multiple selection mode. */
   get multiple() { return this._parent && this._parent.multiple; }
@@ -134,27 +133,24 @@ export class MatOption extends MatOptionBase implements AfterViewChecked, OnDest
     private _changeDetectorRef: ChangeDetectorRef,
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
     @Optional() public group: MatOptgroup) {
-    super();
     MatOption.mostRecentOption = this;
   }
 
-  restoreStatus(optionStatus: MatOptionBase) {
-    this._selected = optionStatus._selected;
-    this._active = optionStatus._active;
-    this._disabled = optionStatus._disabled;
-    this._id = optionStatus._id;
-    this._mostRecentViewValue = optionStatus._mostRecentViewValue;
+  restoreStatus(optionStatus: MatOptionStatus) {
+    this._selected = optionStatus.selected;
+    this._active = optionStatus.active;
+    this._disabled = optionStatus.disabled;
+    this._id = optionStatus.id;
     this.value = optionStatus.value;
     if (optionStatus.group) { this.group = optionStatus.group; }
   }
 
-  extractStatus(): MatOptionBase {
-    return <MatOptionBase>{
-      _selected: this._selected,
-      _active: this._active,
-      _disabled: this.disabled,
-     _id: this._id,
-      _mostRecentViewValue: this._mostRecentViewValue,
+  extractStatus(): MatOptionStatus {
+    return <MatOptionStatus>{
+      selected: this._selected,
+      active: this._active,
+      disabled: this.disabled,
+      id: this._id,
       value: this.value,
       group: this.group
     };

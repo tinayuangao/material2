@@ -808,14 +808,14 @@ describe('MatSelect with template', () => {
           trigger.click();
           fixture.detectChanges();
           groups =
-            overlayContainerElement.querySelectorAll('mat-optgroup') as NodeListOf<HTMLElement>;
+            fixture.debugElement.nativeElement.querySelectorAll('div[role="group"]');
         }));
 
-        it('should set the appropriate role', fakeAsync(() => {
+        fit('should set the appropriate role', fakeAsync(() => {
           expect(groups[0].getAttribute('role')).toBe('group');
         }));
 
-        it('should set the `aria-labelledby` attribute', fakeAsync(() => {
+        fit('should set the `aria-labelledby` attribute', fakeAsync(() => {
           let group = groups[0];
           let label = group.querySelector('label')!;
 
@@ -824,7 +824,7 @@ describe('MatSelect with template', () => {
             .toBe(label.getAttribute('id'), 'Expected `aria-labelledby` to match the label id.');
         }));
 
-        it('should set the `aria-disabled` attribute if the group is disabled', fakeAsync(() => {
+        fit('should set the `aria-disabled` attribute if the group is disabled', fakeAsync(() => {
           expect(groups[1].getAttribute('aria-disabled')).toBe('true');
         }));
       });
@@ -2697,7 +2697,7 @@ describe('MatSelect with template', () => {
       trigger = fixture.debugElement.query(By.css('.mat-select-trigger')).nativeElement;
     }));
 
-    fit('should not align the active option with the trigger if centering is disabled',
+    it('should not align the active option with the trigger if centering is disabled',
       fakeAsync(() => {
         trigger.click();
         fixture.detectChanges();
@@ -2707,11 +2707,8 @@ describe('MatSelect with template', () => {
 
         // The panel should be scrolled to 0 because centering the option disabled.
         expect(scrollContainer.scrollTop).toEqual(0, `Expected panel not to be scrolled.`);
-        console.log(trigger)
         // The trigger should contain 'Pizza' because it was preselected
         expect(trigger.textContent).toContain('Pizza');
-        // The selected index should be 1 because it was preselected
-        expect(fixture.componentInstance.options.toArray()[1].selected).toBe(true);
       }));
   });
 
@@ -3752,10 +3749,11 @@ describe('MatSelect with template', () => {
     <div [style.height.px]="heightAbove"></div>
     <mat-form-field>
       <mat-select placeholder="Food" [formControl]="control" [required]="isRequired"
-        [tabIndex]="tabIndexOverride" [aria-label]="ariaLabel" [aria-labelledby]="ariaLabelledby"
-        [panelClass]="panelClass" [disableRipple]="disableRipple" [options]="foods"
-        [optionTextTransform]="viewValueTransform">
-        <mat-option *matOptionDef="let food" [disabled]="food.disabled">
+                  [tabIndex]="tabIndexOverride" 
+                  [aria-label]="ariaLabel" [aria-labelledby]="ariaLabelledby"
+                  [panelClass]="panelClass" [disableRipple]="disableRipple" [options]="foods"
+                  [optionTextTransform]="viewValueTransform">
+        <mat-option *matOptionDef="let food" [value]="food" [disabled]="food.disabled">
           {{ food.viewValue }}
         </mat-option>
       </mat-select>
@@ -3841,7 +3839,8 @@ class ManySelects {
       <mat-form-field>
         <mat-select placeholder="Food I want to eat right now" [formControl]="control"
                     [options]="foods"
-                    [optionTextTransform]="viewValueTransform">
+                    [optionTextTransform]="viewValueTransform"
+                    [optionValueAccessor]="optionValueAccessor">
           <mat-option *matOptionDef="let food" [value]="food.value">
             {{ food.viewValue }}
           </mat-option>
@@ -3859,6 +3858,7 @@ class NgIfSelect {
   ];
   control = new FormControl('pizza-1');
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -3895,7 +3895,8 @@ class SelectWithChangeEvent {
     <mat-form-field>
       <mat-select placeholder="Food I want to eat right now" [formControl]="control"
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -3907,6 +3908,7 @@ class SelectInitWithoutOptions {
   foods: any[];
   control = new FormControl('pizza-1');
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
@@ -3926,7 +3928,8 @@ class SelectInitWithoutOptions {
   template: `
     <mat-form-field>
       <mat-select placeholder="Food" [formControl]="control" [options]="foods" 
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -3942,6 +3945,7 @@ class BasicSelectOnPush {
   ];
   control = new FormControl();
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -3950,7 +3954,8 @@ class BasicSelectOnPush {
   template: `
     <mat-form-field>
       <mat-select placeholder="Food" [formControl]="control" [options]="foods" 
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -3966,6 +3971,7 @@ class BasicSelectOnPushPreselected {
   ];
   control = new FormControl('pizza-1');
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -3973,7 +3979,8 @@ class BasicSelectOnPushPreselected {
   template: `
     <mat-form-field [floatLabel]="floatLabel">
       <mat-select placeholder="Food I want to eat right now" [formControl]="control"
-                  [options]="foods" [optionTextTransform]="viewValueTransform">
+                  [options]="foods" [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -3990,6 +3997,7 @@ class FloatLabelSelect {
     { value: 'tacos-2', viewValue: 'Tacos'}
   ];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -3999,7 +4007,8 @@ class FloatLabelSelect {
   template: `
     <mat-form-field>
       <mat-select multiple placeholder="Food" [formControl]="control" [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food"
                     [value]="food.value">{{ food.viewValue }}
         </mat-option>
@@ -4020,6 +4029,7 @@ class MultiSelect {
   ];
   control = new FormControl();
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
@@ -4030,7 +4040,8 @@ class MultiSelect {
   template: `
     <mat-form-field>
       <mat-select [style.display]="isVisible ? 'block' : 'none'"
-                  [options]="options" [optionTextTransform]="viewValueTransform">
+                  [options]="options" [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let option" [value]="option.value">
           {{optoin.viewValue}}
         </mat-option>
@@ -4042,13 +4053,15 @@ class BasicSelectInitiallyHidden {
   isVisible = false;
   options = [{value: 'value', viewValue: 'There are no other options'}];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
   selector: 'basic-select-no-placeholder',
   template: `
     <mat-form-field>
-      <mat-select [options]="options" [optionTextTransform]="viewValueTransform">
+      <mat-select [options]="options" [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let option" [value]="option.value">
           {{optoin.viewValue}}
         </mat-option>
@@ -4059,13 +4072,15 @@ class BasicSelectInitiallyHidden {
 class BasicSelectNoPlaceholder {
   options = [{value: 'value', viewValue: 'There are no other options'}];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
   selector: 'basic-select-with-theming',
   template: `
     <mat-form-field [color]="theme">
-      <mat-select placeholder="Food" [options]="foods" [optionTextTransform]="viewValueTransform">
+      <mat-select placeholder="Food" [options]="foods" [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">{{food.viewValue}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -4079,6 +4094,7 @@ class BasicSelectWithTheming {
     { value: 'pizza-1', viewValue: 'Pizza' },
   ];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -4086,7 +4102,8 @@ class BasicSelectWithTheming {
   template: `
     <mat-form-field>
       <mat-select placeholder="Food" [formControl]="control" [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4106,6 +4123,7 @@ class ResetValuesSelect {
   ];
   control = new FormControl();
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -4114,7 +4132,8 @@ class ResetValuesSelect {
   template: `
     <mat-form-field>
       <mat-select [formControl]="control" [options]="foods" 
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food"
                     [value]="food.value">{{ food.viewValue }}
         </mat-option>
@@ -4129,6 +4148,7 @@ class FalsyValueSelect {
   ];
   control = new FormControl();
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
 }
 
@@ -4138,7 +4158,8 @@ class FalsyValueSelect {
     <mat-form-field>
       <mat-select placeholder="Pokemon" [formControl]="control" [optgroups]="pokemonTypes" 
                   [groupOptionsAccessor]="groupOptionsAccessor" 
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-optgroup *matOptionGroupDef="let group" [label]="group.name"
                       [disabled]="group.disabled">
         </mat-optgroup>
@@ -4188,6 +4209,7 @@ class SelectWithGroups {
   ];
   groupOptionsAccessor = (group: {pokemon: any[]}) => group.pokemon;
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
@@ -4199,7 +4221,8 @@ class SelectWithGroups {
     <mat-form-field>
       <mat-select placeholder="Pokemon" [formControl]="control" [optgroups]="pokemonTypes" 
                   [groupOptionsAccessor]="groupOptionsAccessor" 
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-optgroup *matOptionGroupDef="let group" [label]="group.name"
                       [disabled]="group.disabled">
         </mat-optgroup>
@@ -4220,6 +4243,7 @@ class SelectWithGroupsAndNgContainer {
   ];
   groupOptionsAccessor = (group: {pokemon: any[]}) => group.pokemon;
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -4241,7 +4265,8 @@ class InvalidSelectInForm {
       <mat-form-field>
         <mat-select placeholder="Food" formControlName="food"
                     [options]="foods"
-                    [optionTextTransform]="viewValueTransform">
+                    [optionTextTransform]="viewValueTransform"
+                    [optionValueAccessor]="optionValueAccessor">
           <mat-option *matOptionDef="let food" [value]="food.value">
             {{ food.viewValue }}
           </mat-option> 
@@ -4262,8 +4287,9 @@ class SelectInsideFormGroup {
   foods = [
     { value: 'steak-0', viewValue: 'Steak' },
     { value: 'pizza-1', viewValue: 'Pizza' },
-  ]
+  ];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -4271,7 +4297,8 @@ class SelectInsideFormGroup {
     <mat-form-field>
       <mat-select placeholder="Food" [(value)]="selectedFood"
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4288,6 +4315,7 @@ class BasicSelectWithoutForms {
   ];
 
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -4297,8 +4325,9 @@ class BasicSelectWithoutForms {
     <mat-form-field>
       <mat-select placeholder="Food" [(value)]="selectedFood"
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
-        <mat-option *matOptionDef="let food">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
+        <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
       </mat-select>
@@ -4312,6 +4341,7 @@ class BasicSelectWithoutFormsPreselected {
     { value: 'pizza-1', viewValue: 'Pizza' },
   ];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -4321,7 +4351,8 @@ class BasicSelectWithoutFormsPreselected {
     <mat-form-field>
       <mat-select placeholder="Food" [(value)]="selectedFoods" multiple
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4337,6 +4368,7 @@ class BasicSelectWithoutFormsMultiple {
     { value: 'sandwich-2', viewValue: 'Sandwich' },
   ];
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
 }
@@ -4347,7 +4379,8 @@ class BasicSelectWithoutFormsMultiple {
     <mat-form-field>
       <mat-select placeholder="Food" [formControl]="control" #select="matSelect"
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-select-trigger>
           {{ select.selected?.viewValue.split('').reverse().join('') }}
         </mat-select-trigger>
@@ -4365,6 +4398,7 @@ class SelectWithCustomTrigger {
   ];
   control = new FormControl();
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
@@ -4374,7 +4408,8 @@ class SelectWithCustomTrigger {
       <mat-select [ngModel]="selectedFood" (ngModelChange)="setFoodByCopy($event)"
                   [compareWith]="comparator"
                   [options]="foods"
-                  [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4391,6 +4426,7 @@ class NgModelCompareWithSelect {
   selectedFood: {value: string, viewValue: string} = { value: 'pizza-1', viewValue: 'Pizza' };
   comparator: ((f1: any, f2: any) => boolean)|null = this.compareByValue;
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
@@ -4414,7 +4450,8 @@ class NgModelCompareWithSelect {
   template: `
     <mat-select placeholder="Food" [formControl]="control" [errorStateMatcher]="errorStateMatcher"
                 [options]="foods"
-                [optionTextTransform]="viewValueTransform">
+                [optionTextTransform]="viewValueTransform"
+                [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4430,13 +4467,15 @@ class CustomErrorBehaviorSelect {
   ];
   errorStateMatcher: ErrorStateMatcher;
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 }
 
 @Component({
   template: `
     <mat-form-field>
       <mat-select placeholder="Food" [(ngModel)]="selectedFoods" [options]="foods"
-           [optionTextTransform]="viewValueTransform">
+                  [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor">
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
         </mat-option>
@@ -4453,6 +4492,7 @@ class SingleSelectWithPreselectedArrayValues {
 
   selectedFoods = this.foods[1].value;
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
   @ViewChild(MatSelect) select: MatSelect<any>;
   @ViewChildren(MatOption) options: QueryList<MatOption>;
@@ -4466,6 +4506,7 @@ class SingleSelectWithPreselectedArrayValues {
                   [options]="foods" 
                   [formControl]="control" 
                   [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor"
                   disableOptionCentering>
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}
@@ -4487,6 +4528,7 @@ class SelectWithoutOptionCentering {
   ];
   control = new FormControl('pizza-1');
   viewValueTransform = (option: {viewValue: string}) => option.viewValue;
+  optionValueAccessor = (option: {value: string}) => option.value;
 
 
   @ViewChild(MatSelect) select: MatSelect<any>;

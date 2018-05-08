@@ -71,9 +71,10 @@ import {
   HasTabIndex,
   MAT_OPTION_PARENT_COMPONENT,
   MatOptgroup,
+  MatOptgroupStatus,
   MatOption,
   MatOptionOutlet,
-  MatOptionBase,
+  MatOptionStatus,
   MatGroupOptionOutlet,
   MatOptionSelectionChange,
   mixinDisabled,
@@ -400,6 +401,17 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   get optionData(): T[] { return this._optionData; }
   private _optionData: T[];
 
+  /** Returns the all optionData, including those in groups */
+  get totalOptionData(): T[] {
+    if (this._optionData) {
+      return this._optionData;
+    } else if (this._optionDataGroups) {
+      return [].concat.apply([], this._optionDataGroups
+        .map(group => this.groupOptionsAccessor(group)));
+    }
+    return []
+  }
+
   /** Option group data for template style select. */
   get optionDataGroups(): F[] { return this._optionDataGroups; }
   private _optionDataGroups: F[];
@@ -564,11 +576,13 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   ngAfterContentInit() {
     this._initKeyManager();
     this.options.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+      // select options by current value
       this._resetOptions();
       this._initializeSelection();
     });
 
     this.optionGroups.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+      // Render group options
       this._renderGroupOptions();
     });
   }
@@ -645,6 +659,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     if (this._panelOpen) {
+      this._saveOptionStatus();
       this._panelOpen = false;
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
@@ -771,7 +786,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
 
   /** Get the display value of the option */
   private _getOptionViewValue(option: MatOption) {
-    return option.viewValue || option._mostRecentViewValue;
+    return option.viewValue;
   }
 
   /** Whether the element is in RTL mode. */
@@ -946,6 +961,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
         option: option,
         index: index,
       });
+
   }
 
   /**
@@ -994,6 +1010,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionData = data;
+          this._initializeOptionStatus();
           this._initializeSelection();
           this._renderOptions();
         });
@@ -1046,14 +1063,59 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this._dataGroupSubscription = dataStream.pipe(takeUntil(this._destroy))
         .subscribe(data => {
           this._optionDataGroups = data;
-          this._optionData =  [].concat.apply([], this._optionDataGroups
-              .map(group => this.groupOptionsAccessor(group)));
+          this._initializeOptionStatus();
           this._initializeSelection();
           this._renderOptions();
         });
     }
   }
 
+  _optionDataStatus: MatOptionStatus[];
+  _optionGroupStatus: MatOptgroupStatus[];
+  _optionGroupDataStatus: MatOptionStatus[][];
+  private _initializeOptionStatus() {
+    let counter = 0;
+    if (this._optionDataGroups) {
+      this._optionGroupDataStatus = [];
+      this._optionGroupStatus = this._optionDataGroups.map((group, index: number) => {
+        const options = this.groupOptionsAccessor(group);
+
+        this._optionGroupDataStatus[index] = options.map(opt => <MatOptionStatus>{
+          selected: this._optionSelectionModel ? this._optionSelectionModel.isSelected(opt): false,
+          id: `${this._listboxId}-opt-${counter++}`,
+          viewValue: this.optionTextTransform(opt),
+          value: this.optionValueAccessor(opt),
+        });
+        return <MatOptgroupStatus> {
+          disabled: false,
+          label: ''
+        }
+      });
+    }
+    if (this._optionData) {
+      this._optionDataStatus = this._optionData.map((opt: T, index: number) => <MatOptionStatus>{
+        selected: this._optionSelectionModel ? this._optionSelectionModel.isSelected(opt) : false,
+        id: `${this._listboxId}-opt-${index}`,
+        viewValue: this.optionTextTransform(opt),
+        value: this.optionValueAccessor(opt),
+      });
+    }
+    console.log(`option`, this._optionDataStatus,  this._optionGroupStatus)
+  }
+
+  private _saveOptionStatus() {
+    this._optionGroupStatus = this.optionGroups.map(group => group as MatOptgroupStatus);
+    const optionStatus = this.options.map(option => option.extractStatus());
+    if (this._optionDataGroups) {
+      this._optionGroupDataStatus = [];
+      for (let i = 0; i < this._optionDataGroups.length; i++) {
+        const length = this.groupOptionsAccessor(this._optionDataGroups[i]).length;
+        this._optionGroupDataStatus[i] = optionStatus.slice(0, length);
+      }
+    } else {
+      this._optionDataStatus = optionStatus;
+    }
+  }
 
   private _initializeSelection(): void {
     // Defer setting the value in order to avoid the "Expression
@@ -1083,21 +1145,13 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       const correspondingOption = this._selectValue(value, isUserInput);
 
       // Shift focus to the active item. Note that we shouldn't do this in multiple
-      // mode, because we don't know what option the user intet do this in multiple
       // mode, because we don't know what option the user interacted with last.
       if (correspondingOption) {
-        this._keyManager.setActiveItem(correspondingOption); // MatOption
+        this._keyManager.setActiveItem(correspondingOption);
       }
     }
 
     this._changeDetectorRef.markForCheck();
-  }
-  
-
-  /** Return the first selected MatOption. */
-  get selectedOption(): MatOption | undefined {
-    if (this.empty) { return undefined; }
-    return this._selectionModel.selected[0];
   }
 
   /** Find whether the corresponding MatOption matches the given value. */
@@ -1128,8 +1182,8 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       this.stateChanges.next();
     }
 
-    if (this.optionData) {
-      const option = this.optionData.find(opt => this._isOptionDataMatch(value, opt))
+    if (this.totalOptionData) {
+      const option = this.totalOptionData.find(opt => this._isOptionDataMatch(value, opt))
       if (option) {
         this._optionSelectionModel.select(option);
       }
@@ -1290,16 +1344,22 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
    */
   private _highlightCorrectOption(): void {
     if (this._keyManager) {
-      if (this.selectedOption) {
-        const component = this.selectedOption instanceof MatOption
-            ? this.selectedOption
-            : this.options.find(opt => opt.id === this.selectedOption!._id)
-        if (component) {
-          this._keyManager.setActiveItem(component);
-          return;
-        }
+      // Get selected MatOption
+      const option = this.options.find(opt => this._matchesOptionValue(opt))
+      if (option) {
+        this._keyManager.setActiveItem(option);
+        return;
       }
       this._keyManager.setFirstItemActive();
+    }
+  }
+
+  /** Whether the given MatOption's value matches current value */
+  private _matchesOptionValue(option: MatOption): boolean {
+    if (this.multiple && Array.isArray(this._value)) {
+      return !!this._value.find(val => this._compareWith(val, option.value));
+    } else {
+      return this._compareWith(this._value, option.value)
     }
   }
 
@@ -1325,15 +1385,12 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
   /** Gets the index of the provided option in the option list. */
   private _getSelectedOptionIndex(): number | undefined {
     if (this.empty) { return 0; }
-    const selected = Array.isArray(this.selected) ? this.selected[0] : this.selected;
-    if (this.selectedOption) {
-      const id = this.selectedOption._id;
-      if (this.options.length) {
-        return this.options
-          .reduce((result: number, current: MatOption, index: number) => {
-            return result === undefined ? (id === current.id ? index : undefined) : result;
-          }, undefined);
-      }
+    const selected = this._selectionModel.selected[0];
+    if (selected && this.options.length) {
+      return this.options
+        .reduce((result: number, current: MatOption, index: number) => {
+          return result === undefined ? (selected.id === current.id ? index : undefined) : result;
+        }, undefined);
     } else if (this._optionSelectionModel.selected && this._optionData) {
       return this._optionData.indexOf(this._optionSelectionModel.selected[0]);
     }
@@ -1397,8 +1454,10 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
       this._keyManager.activeItem.id;
     } else {
-      return 'special return';
-      // TODO(tinayuangao): get the active id from selected value
+      // get selecte doption
+      const option = this._optionSelectionModel.selected[0];
+      const index = this.totalOptionData.indexOf(option);
+      return index > -1 ? `${this._listboxId}-opt-${index}` : null;
     }
 
     return null;
@@ -1428,7 +1487,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.multiple) {
       offsetX = SELECT_MULTIPLE_PANEL_PADDING_X;
     } else {
-      let selected = this.selectedOption || this.options.first;
+      let selected = this._selectionModel.selected[0] || this.options.first;
       offsetX = selected && selected.group ? SELECT_PANEL_INDENT_PADDING_X : SELECT_PANEL_PADDING_X;
     }
 
@@ -1586,7 +1645,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     if (this.options.length) {
       return this.options.length + this.optionGroups.length;
     } else if (this.optionDataGroups) {
-      return this.optionData.length + (this.optionDataGroups ? this.optionDataGroups.length : 0);
+      return this.totalOptionData.length + (this.optionDataGroups ? this.optionDataGroups.length : 0);
     }
     return 0;
   }

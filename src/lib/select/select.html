@@ -75,28 +75,27 @@
 <div role="listbox"
      [id]="_listboxId"
      [attr.aria-multiselectable]="multiple"
-     [style.display]="panelOpen ? 'block' : 'none'"
-     class="cdk-visually-hidden"
+
      *ngIf="optionTemplate">
-  <div *ngIf="!optionDataGroups">
-    <div role="option" *ngFor="let opt of optionData; let index = index"
-         id="{{_listboxId}}-opt-{{index}}"
-         aria-disabled="false"
-         [attr.aria-selected]="_optionSelectionModel.isSelected(opt)">
-      {{optionTextTransform(opt)}}
+  <div role="option" *ngFor="let opt of _optionDataStatus; let index = index"
+       id="opt.id"
+       aria-disabled="opt.disabled"
+       [attr.aria-selected]="opt.selected">
+      {{opt.viewValue}}
   </div>
-  </div>
-  <div role="group" *ngFor="let group of optionDataGroups; let index = index"
+  <div role="group" *ngFor="let group of _optionGroupStatus; let index = index"
        id="{{_listboxId}}-group-{{index}}"
-       aria-disabled="false">
-    <div role="option" *ngFor="let opt of groupOptionsAccessor(group)"
-         id="{{_listboxId}}-opt-{{optionData.indexOf(opt)}}"
-         aria-disabled="false"
-         [attr.aria-selected]="_optionSelectionModel.isSelected(opt)">
-      {{optionTextTransform(opt)}}
+       aria-disabled="group.disabled">
+    {{group.label}}
+    <div role="option" *ngFor="let opt of _optionGroupDataStatus[index]"
+         id="opt.id"
+         aria-disabled="opt.disabled"
+         [attr.aria-selected]="opt.selected">
+      {{opt.viewValue}}
     </div>
   </div>
-</div>
+</div>     [style.display]="panelOpen ? 'block' : 'none'"
+class="cdk-visually-hidden"
 
 
 <!-- Workaround for VoiceOver + Safari not correctly supporting activedescendant https://bugs.webkit.org/show_bug.cgi?id=167671 -->
