@@ -191,9 +191,9 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">
         <mat-label>Drink</mat-label>
         <mat-select [(ngModel)]="currentDrink2" [required]="drinksRequired"
-                    [options]="drinks" [optionTextTransform]="drinkTextTransform"
+                    [options]="drinks" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"
                     [disabled]="drinksDisabled" #drinkControl2="ngModel">
-          <mat-option *matOptionDef="let option" [value]="option" [disabled]="option.disabled">
+          <mat-option *matOptionDef="let option" [value]="option.value" [disabled]="option.disabled">
             {{option.viewValue}}
           </mat-option>
         </mat-select>
@@ -222,7 +222,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
         </select>
       </p>
 
-      <button mat-button (click)="currentDrink='water-2'">SET VALUE</button>
+      <button mat-button (click)="currentDrink2='water-2'">SET VALUE</button>
       <button mat-button (click)="drinksRequired=!drinksRequired">TOGGLE REQUIRED</button>
       <button mat-button (click)="drinksDisabled=!drinksDisabled">TOGGLE DISABLED</button>
       <button mat-button (click)="drinkControl2.reset()">RESET</button>
@@ -234,7 +234,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field [color]="pokemonTheme">
           <mat-label>Pokemon</mat-label>
-          <mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform"
+          <mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"
                       [required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl2="ngModel">
             <mat-option *matOptionDef="let creature" [value]="creature.value">
                <span [class.my-option-selected]="selected">{{creature.viewValue}}</span>
@@ -251,7 +251,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
             <option *ngFor="let theme of availableThemes" [value]="theme.value">{{ theme.name }}</option>
           </select>
         </p>
-        <button mat-button (click)="setPokemonValue()">SET VALUE</button>
+        <button mat-button (click)="setPokemonValue2()">SET VALUE</button>
         <button mat-button (click)="pokemonRequired=!pokemonRequired">TOGGLE REQUIRED</button>
         <button mat-button (click)="pokemonDisabled=!pokemonDisabled">TOGGLE DISABLED</button>
         <button mat-button (click)="pokemonControl2.reset()">RESET</button>
@@ -302,16 +302,17 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field [color]="drinksTheme">
           <mat-label>Drink</mat-label>
-          <mat-select [(ngModel)]="currentDrinkObject"
+          <mat-select [(ngModel)]="currentDrinkObject2"
                       [required]="drinkObjectRequired"
                       [compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"
-                      #drinkObjectControl="ngModel">
-            <mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">
+                      #drinkObjectControl="ngModel" [options]="drinks"
+                      [optionTextTransform]="drinkTextTransform" >
+            <mat-option *matOptionDef="let drink" [value]="drink" [disabled]="drink.disabled">
               {{ drink.viewValue }}
             </mat-option>mat
           </mat-select>
         </mat-form-field>
-        <p> Value: {{ currentDrinkObject | json }} </p>
+        <p> Value: {{ currentDrinkObject2 | json }} </p>
         <p> Touched: {{ drinkObjectControl.touched }} </p>
         <p> Dirty: {{ drinkObjectControl.dirty }} </p>
         <p> Status: {{ drinkObjectControl.control?.status }} </p>
@@ -332,8 +333,8 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
       <mat-card-content>
         <mat-form-field [color]="drinksTheme">
           <mat-label>Drink</mat-label>
-          <mat-select [options]="drinks" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel">
-            <mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option">
+          <mat-select [options]="drinks" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel" [optionValueAccessor]="optionValueAccessor">
+            <mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option.value">
             <span [class.my-option-selected]="selected">
               {{option.viewValue}}
             </span>
@@ -390,6 +391,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
                   [options]="foods"
                   [formControl]="control"
                   [optionTextTransform]="viewValueTransform"
+                  [optionValueAccessor]="optionValueAccessor"
                   disableOptionCentering>
         <mat-option *matOptionDef="let food" [value]="food.value">
           {{ food.viewValue }}

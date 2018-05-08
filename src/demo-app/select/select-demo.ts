@@ -26,6 +26,7 @@ export class SelectDemo {
   showSelect = false;
   currentDrink: string;
   currentDrinkObject: {}|undefined = {value: 'tea-5', viewValue: 'Tea'};
+  currentDrinkObject2: {}|undefined = {value: 'tea-5', viewValue: 'Tea'};
   currentPokemon: string[];
   currentPokemonFromGroup: string;
   currentDigimon: string;
@@ -129,6 +130,10 @@ export class SelectDemo {
     this.currentPokemon = ['jigglypuff-4', 'psyduck-6'];
   }
 
+  setPokemonValue2() {
+    this.currentPokemon2 = ['jigglypuff-4', 'psyduck-6'];
+  }
+
   reassignDrinkByCopy() {
     this.currentDrinkObject = {...this.currentDrinkObject};
   }
@@ -147,8 +152,8 @@ export class SelectDemo {
     return opt.viewValue.indexOf(filterText) > -1;
   };
 
-  currentDrink2: string;
-  currentPokemon2: {};
+  currentDrink2: string = 'milk-8';
+  currentPokemon2: string[];
 
   pokemonOptionsFor = (group: any) => {
     return group.pokemon;
