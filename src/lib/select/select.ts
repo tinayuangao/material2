@@ -663,8 +663,10 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
    * @param value New value to be written to the model.
    */
   writeValue(value: T | T[]): void {
-    if (this.options || this._optionData) {
+    if (this.options) {
       this._setSelectionByValue(value);
+    } else if (this._optionData || this._optionDataGroup) {
+      this._setSelectedOptionsByValue(value);   
     }
     this._value = value;
   }
@@ -1072,6 +1074,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
       const correspondingOption = this._selectValue(value, isUserInput);
 
       // Shift focus to the active item. Note that we shouldn't do this in multiple
+      // mode, because we don't know what option the user intet do this in multiple
       // mode, because we don't know what option the user interacted with last.
       if (correspondingOption) {
         this._keyManager.setActiveItem(correspondingOption); // MatOption
@@ -1079,6 +1082,25 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     }
 
     this._changeDetectorRef.markForCheck();
+  }
+  
+  private _setSelectedOptionsByValue(value: any): void {
+    if (this._optionData) {
+      return this._findOptionDataByValue(value, this._optionData);
+    } else if (this._optionDataGroup) {
+      this._optionDataGroups.forEach((group) => {
+        const options = this.groupOptionsAccessor(tgroup)
+      })
+    }
+  }
+  
+  private _findOptionDataByValue(value: any, optionData: T[]): T | undefined {
+    const option = optionData.find(opt => this._compareWith(this.optionValueAccessor(opt), value));
+    if (option) {
+      this.selectedOption = option;
+      this.selectedIndex = optionData.indexOf(option);
+      return option;
+    }
   }
 
   /** Return the first selected MatOption. */
@@ -1117,6 +1139,7 @@ export class MatSelect<T = any, F = any> extends _MatSelectMixinBase implements 
     } else if (optionBase) {
       this._selectionModel.select(optionBase);
     } else if (this.optionData) {
+
       console.log(`none`, this.options, this._optionStatus)
     } else if (this.optionDataGroups) {
       console.log(`option groups`)
