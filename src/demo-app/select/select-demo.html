@@ -4,10 +4,10 @@
 
 <!--<div class="demo-select">-->
   <mat-card *ngFor="let card of cards">
-    <mat-card-subtitle>ngModel</mat-card-subtitle>
+    <!--<mat-card-subtitle>ngModel</mat-card-subtitle>-->
 
-    <mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">
-      <mat-label>Drink</mat-label>
+    <!--<mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">-->
+      <!--<mat-label>Drink</mat-label>-->
       <mat-select [(ngModel)]="currentDrink" [required]="drinksRequired"
         [disabled]="drinksDisabled" #drinkControl="ngModel">
         <mat-option>None</mat-option>
@@ -15,35 +15,35 @@
           {{ drink.viewValue }}
         </mat-option>
       </mat-select>
-      <mat-icon matPrefix class="demo-drink-icon">local_drink</mat-icon>
-      <mat-hint>Pick a drink!</mat-hint>
-      <mat-error>You must make a selection</mat-error>
-    </mat-form-field>
-    <p> Value: {{ currentDrink }} </p>
-    <p> Touched: {{ drinkControl.touched }} </p>
-    <p> Dirty: {{ drinkControl.dirty }} </p>
-    <p> Status: {{ drinkControl.control?.status }} </p>
-    <p>
-      <label for="floating-placeholder">Floating placeholder:</label>
-      <select [(ngModel)]="floatLabel" id="floating-placeholder">
-        <option value="auto">Auto</option>
-        <option value="always">Always</option>
-        <option value="never">Never</option>
-      </select>
-    </p>
-    <p>
-      <label for="drinks-theme">Theme:</label>
-      <select [(ngModel)]="drinksTheme" id="drinks-theme">
-        <option *ngFor="let theme of availableThemes" [value]="theme.value">
-          {{theme.name}}
-        </option>
-      </select>
-    </p>
+      <!--<mat-icon matPrefix class="demo-drink-icon">local_drink</mat-icon>-->
+      <!--<mat-hint>Pick a drink!</mat-hint>-->
+      <!--<mat-error>You must make a selection</mat-error>-->
+    <!--</mat-form-field>-->
+    <!--<p> Value: {{ currentDrink }} </p>-->
+    <!--<p> Touched: {{ drinkControl.touched }} </p>-->
+    <!--<p> Dirty: {{ drinkControl.dirty }} </p>-->
+    <!--<p> Status: {{ drinkControl.control?.status }} </p>-->
+    <!--<p>-->
+      <!--<label for="floating-placeholder">Floating placeholder:</label>-->
+      <!--<select [(ngModel)]="floatLabel" id="floating-placeholder">-->
+        <!--<option value="auto">Auto</option>-->
+        <!--<option value="always">Always</option>-->
+        <!--<option value="never">Never</option>-->
+      <!--</select>-->
+    <!--</p>-->
+    <!--<p>-->
+      <!--<label for="drinks-theme">Theme:</label>-->
+      <!--<select [(ngModel)]="drinksTheme" id="drinks-theme">-->
+        <!--<option *ngFor="let theme of availableThemes" [value]="theme.value">-->
+          <!--{{theme.name}}-->
+        <!--</option>-->
+      <!--</select>-->
+    <!--</p>-->
 
-    <button mat-button (click)="currentDrink='water-2'">SET VALUE</button>
-    <button mat-button (click)="drinksRequired=!drinksRequired">TOGGLE REQUIRED</button>
-    <button mat-button (click)="drinksDisabled=!drinksDisabled">TOGGLE DISABLED</button>
-    <button mat-button (click)="drinkControl.reset()">RESET</button>
+    <!--<button mat-button (click)="currentDrink='water-2'">SET VALUE</button>-->
+    <!--<button mat-button (click)="drinksRequired=!drinksRequired">TOGGLE REQUIRED</button>-->
+    <!--<button mat-button (click)="drinksDisabled=!drinksDisabled">TOGGLE DISABLED</button>-->
+    <!--<button mat-button (click)="drinkControl.reset()">RESET</button>-->
   </mat-card>
 
   <!--<mat-card>-->
