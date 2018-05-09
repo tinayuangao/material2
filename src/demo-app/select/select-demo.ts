@@ -128,9 +128,9 @@ export class SelectDemo {
   }
 
   constructor() {
-    // for (let i = 0; i < 1000; i++) {
-    //   this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
-    // }
+    for (let i = 0; i < 1000; i++) {
+      this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
+    }
   }
   toggleDisabled() {
     this.foodControl.enabled ? this.foodControl.disable() : this.foodControl.enable();
