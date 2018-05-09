@@ -124,9 +124,24 @@ export class SelectDemo {
   }
 
   ngAfterContentInit() {
-    console.log((Date.now() - this.date));
+    console.log(`after contnet init `, (Date.now() - this.date));
   }
 
+  ngOnChanges(){
+    console.log(`on changes `, (Date.now() - this.date));
+  }
+  ngDoCheck(){
+    console.log(`do check `, (Date.now() - this.date));
+  }
+  ngAfterContentChecked(){
+    console.log(`after content checked  `, (Date.now() - this.date));
+  }
+  ngAfterViewInit(){
+    console.log(`after view init`, (Date.now() - this.date));
+  }
+  ngAfterViewChecked(){
+    console.log(`after view checked `, (Date.now() - this.date));
+  }
   constructor() {
     for (let i = 0; i < 1000; i++) {
       this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})

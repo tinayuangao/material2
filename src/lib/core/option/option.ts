@@ -138,6 +138,7 @@ export class MatOption<T=any> implements AfterViewChecked, OnDestroy {
     @Optional() @Inject(MAT_OPTION_PARENT_COMPONENT) private _parent: MatOptionParentComponent,
     @Optional() public group: MatOptgroup) {
     MatOption.mostRecentOption = this;
+    console.log(`option construct`)
   }
 
   restoreStatus(optionStatus: MatOptionStatus) {
