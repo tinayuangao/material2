@@ -118,9 +118,20 @@ export class SelectDemo {
   ];
 
   constructor() {
-    for (let i = 0; i < 1000; i++) {
+    console.log(Date.now())
+    for (let i = 0; i < 100; i++) {
       this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
     }
+  }
+
+  start: number;
+  ngOnInit() {
+    this.start = Date.now();
+    console.log(`on init`, Date.now())
+  }
+
+  ngAfterViewChecked() {
+    console.log(`after view cehcked`, Date.now() - this.start)
   }
 
   toggleDisabled() {
