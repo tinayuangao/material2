@@ -1,9 +1,9 @@
-Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label="Space above cards">
-<button mat-button (click)="showSelect=!showSelect">SHOW SELECT</button>
-<div [style.height.px]="topHeightCtrl.value"></div>
+<!--Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label="Space above cards">-->
+<!--<button mat-button (click)="showSelect=!showSelect">SHOW SELECT</button>-->
+<!--<div [style.height.px]="topHeightCtrl.value"></div>-->
 
-<div class="demo-select">
-  <mat-card>
+<!--<div class="demo-select">-->
+  <mat-card *ngFor="let card of cards">
     <mat-card-subtitle>ngModel</mat-card-subtitle>
 
     <mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">
@@ -46,358 +46,358 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl" aria-label
     <button mat-button (click)="drinkControl.reset()">RESET</button>
   </mat-card>
 
-  <mat-card>
-    <mat-card-subtitle>Multiple selection</mat-card-subtitle>
+  <!--<mat-card>-->
+    <!--<mat-card-subtitle>Multiple selection</mat-card-subtitle>-->
 
-    <mat-card-content>
-      <mat-form-field [color]="pokemonTheme">
-        <mat-label>Pokemon</mat-label>
-        <mat-select multiple [(ngModel)]="currentPokemon"
-          [required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl="ngModel">
-          <mat-option *ngFor="let creature of pokemon" [value]="creature.value">
-            {{ creature.viewValue }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <p> Value: {{ currentPokemon }} </p>
-      <p> Touched: {{ pokemonControl.touched }} </p>
-      <p> Dirty: {{ pokemonControl.dirty }} </p>
-      <p> Status: {{ pokemonControl.control?.status }} </p>
-      <p>
-        <label for="pokemon-theme">Theme:</label>
-        <select [(ngModel)]="pokemonTheme" id="pokemon-theme">
-          <option *ngFor="let theme of availableThemes" [value]="theme.value">{{ theme.name }}</option>
-        </select>
-      </p>
-      <button mat-button (click)="setPokemonValue()">SET VALUE</button>
-      <button mat-button (click)="pokemonRequired=!pokemonRequired">TOGGLE REQUIRED</button>
-      <button mat-button (click)="pokemonDisabled=!pokemonDisabled">TOGGLE DISABLED</button>
-      <button mat-button (click)="pokemonControl.reset()">RESET</button>
-    </mat-card-content>
-  </mat-card>
+    <!--<mat-card-content>-->
+      <!--<mat-form-field [color]="pokemonTheme">-->
+        <!--<mat-label>Pokemon</mat-label>-->
+        <!--<mat-select multiple [(ngModel)]="currentPokemon"-->
+          <!--[required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl="ngModel">-->
+          <!--<mat-option *ngFor="let creature of pokemon" [value]="creature.value">-->
+            <!--{{ creature.viewValue }}-->
+          <!--</mat-option>-->
+        <!--</mat-select>-->
+      <!--</mat-form-field>-->
+      <!--<p> Value: {{ currentPokemon }} </p>-->
+      <!--<p> Touched: {{ pokemonControl.touched }} </p>-->
+      <!--<p> Dirty: {{ pokemonControl.dirty }} </p>-->
+      <!--<p> Status: {{ pokemonControl.control?.status }} </p>-->
+      <!--<p>-->
+        <!--<label for="pokemon-theme">Theme:</label>-->
+        <!--<select [(ngModel)]="pokemonTheme" id="pokemon-theme">-->
+          <!--<option *ngFor="let theme of availableThemes" [value]="theme.value">{{ theme.name }}</option>-->
+        <!--</select>-->
+      <!--</p>-->
+      <!--<button mat-button (click)="setPokemonValue()">SET VALUE</button>-->
+      <!--<button mat-button (click)="pokemonRequired=!pokemonRequired">TOGGLE REQUIRED</button>-->
+      <!--<button mat-button (click)="pokemonDisabled=!pokemonDisabled">TOGGLE DISABLED</button>-->
+      <!--<button mat-button (click)="pokemonControl.reset()">RESET</button>-->
+    <!--</mat-card-content>-->
+  <!--</mat-card>-->
 
-  <mat-card>
-    <mat-card-subtitle>Without Angular forms</mat-card-subtitle>
+  <!--<mat-card>-->
+    <!--<mat-card-subtitle>Without Angular forms</mat-card-subtitle>-->
 
-    <mat-form-field>
-      <mat-label>Digimon</mat-label>
-      <mat-select [(value)]="currentDigimon">
-        <mat-option>None</mat-option>
-        <mat-option *ngFor="let creature of digimon" [value]="creature.value">
-          {{ creature.viewValue }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!--<mat-form-field>-->
+      <!--<mat-label>Digimon</mat-label>-->
+      <!--<mat-select [(value)]="currentDigimon">-->
+        <!--<mat-option>None</mat-option>-->
+        <!--<mat-option *ngFor="let creature of digimon" [value]="creature.value">-->
+          <!--{{ creature.viewValue }}-->
+        <!--</mat-option>-->
+      <!--</mat-select>-->
+    <!--</mat-form-field>-->
 
-    <p>Value: {{ currentDigimon }}</p>
+    <!--<p>Value: {{ currentDigimon }}</p>-->
 
-    <button mat-button (click)="currentDigimon='pajiramon-3'">SET VALUE</button>
-    <button mat-button (click)="currentDigimon=''">RESET</button>
-  </mat-card>
+    <!--<button mat-button (click)="currentDigimon='pajiramon-3'">SET VALUE</button>-->
+    <!--<button mat-button (click)="currentDigimon=''">RESET</button>-->
+  <!--</mat-card>-->
 
-  <mat-card>
-    <mat-card-subtitle>Option groups</mat-card-subtitle>
+  <!--<mat-card>-->
+    <!--<mat-card-subtitle>Option groups</mat-card-subtitle>-->
 
-    <mat-card-content>
-      <mat-form-field>
-        <mat-label>Pokemon</mat-label>
-        <mat-select [(ngModel)]="currentPokemonFromGroup">
-          <mat-optgroup *ngFor="let group of pokemonGroups" [label]="group.name"
-            [disabled]="group.disabled">
-            <mat-option *ngFor="let creature of group.pokemon" [value]="creature.value">
-              {{ creature.viewValue }}
-            </mat-option>
-          </mat-optgroup>
-        </mat-select>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
-
-
-  <mat-card>
-    <mat-card-subtitle>compareWith</mat-card-subtitle>
-    <mat-card-content>
-      <mat-form-field [color]="drinksTheme">
-        <mat-label>Drink</mat-label>
-        <mat-select [(ngModel)]="currentDrinkObject"
-                    [required]="drinkObjectRequired"
-                    [compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"
-                    #drinkObjectControl="ngModel">
-          <mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">
-            {{ drink.viewValue }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <p> Value: {{ currentDrinkObject | json }} </p>
-      <p> Touched: {{ drinkObjectControl.touched }} </p>
-      <p> Dirty: {{ drinkObjectControl.dirty }} </p>
-      <p> Status: {{ drinkObjectControl.control?.status }} </p>
-      <p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>
-
-      <button mat-button (click)="reassignDrinkByCopy()"
-              matTooltip="This action should clear the display value when comparing by reference.">
-        REASSIGN DRINK BY COPY
-      </button>
-      <button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>
-      <button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>
-      <button mat-button (click)="drinkObjectControl.reset()">RESET</button>
-    </mat-card-content>
-  </mat-card>
-
-  <div *ngIf="showSelect">
-    <mat-card>
-      <mat-card-subtitle>formControl</mat-card-subtitle>
-
-      <mat-card-content>
-        <mat-form-field>
-          <mat-label>Food I would like to eat</mat-label>
-          <mat-select [formControl]="foodControl">
-            <mat-option *ngFor="let food of foods" [value]="food.value">{{ food.viewValue }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <p> Value: {{ foodControl.value }} </p>
-        <p> Touched: {{ foodControl.touched }} </p>
-        <p> Dirty: {{ foodControl.dirty }} </p>
-        <p> Status: {{ foodControl.status }} </p>
-        <button mat-button (click)="foodControl.setValue('pizza-1')">SET VALUE</button>
-        <button mat-button (click)="toggleDisabled()">TOGGLE DISABLED</button>
-        <button mat-button (click)="foodControl.reset()">RESET</button>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div *ngIf="showSelect">
-    <mat-card>
-      <mat-card-subtitle>Change event</mat-card-subtitle>
-
-      <mat-card-content>
-        <mat-form-field>
-          <mat-label>Starter pokemon</mat-label>
-          <mat-select (change)="latestChangeEvent = $event">
-            <mat-option *ngFor="let creature of pokemon" [value]="creature.value">{{ creature.viewValue }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <p> Change event value: {{ latestChangeEvent?.value }} </p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+    <!--<mat-card-content>-->
+      <!--<mat-form-field>-->
+        <!--<mat-label>Pokemon</mat-label>-->
+        <!--<mat-select [(ngModel)]="currentPokemonFromGroup">-->
+          <!--<mat-optgroup *ngFor="let group of pokemonGroups" [label]="group.name"-->
+            <!--[disabled]="group.disabled">-->
+            <!--<mat-option *ngFor="let creature of group.pokemon" [value]="creature.value">-->
+              <!--{{ creature.viewValue }}-->
+            <!--</mat-option>-->
+          <!--</mat-optgroup>-->
+        <!--</mat-select>-->
+      <!--</mat-form-field>-->
+    <!--</mat-card-content>-->
+  <!--</mat-card>-->
 
 
-  <div class="demo-select">
-    <mat-card>
-      <mat-card-subtitle>ngModel</mat-card-subtitle>
+  <!--<mat-card>-->
+    <!--<mat-card-subtitle>compareWith</mat-card-subtitle>-->
+    <!--<mat-card-content>-->
+      <!--<mat-form-field [color]="drinksTheme">-->
+        <!--<mat-label>Drink</mat-label>-->
+        <!--<mat-select [(ngModel)]="currentDrinkObject"-->
+                    <!--[required]="drinkObjectRequired"-->
+                    <!--[compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"-->
+                    <!--#drinkObjectControl="ngModel">-->
+          <!--<mat-option *ngFor="let drink of drinks" [value]="drink" [disabled]="drink.disabled">-->
+            <!--{{ drink.viewValue }}-->
+          <!--</mat-option>-->
+        <!--</mat-select>-->
+      <!--</mat-form-field>-->
+      <!--<p> Value: {{ currentDrinkObject | json }} </p>-->
+      <!--<p> Touched: {{ drinkObjectControl.touched }} </p>-->
+      <!--<p> Dirty: {{ drinkObjectControl.dirty }} </p>-->
+      <!--<p> Status: {{ drinkObjectControl.control?.status }} </p>-->
+      <!--<p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>-->
 
-      <mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">
-        <mat-label>Drink</mat-label>
-        <mat-select [(ngModel)]="currentDrink2" [required]="drinksRequired"
-                    [options]="drinks" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"
-                    [disabled]="drinksDisabled" #drinkControl2="ngModel">
-          <mat-option *matOptionDef="let option" [value]="option.value" [disabled]="option.disabled">
-            {{option.viewValue}}
-          </mat-option>
-        </mat-select>
-        <mat-icon matPrefix class="demo-drink-icon">local_drink</mat-icon>
-        <mat-hint>Pick a drink!</mat-hint>
-        <mat-error>You must make a selection</mat-error>
-      </mat-form-field>
-      <p> Value: {{ currentDrink2 | json}} </p>
-      <p> Touched: {{ drinkControl2.touched }} </p>
-      <p> Dirty: {{ drinkControl2.dirty }} </p>
-      <p> Status: {{ drinkControl2.control?.status }} </p>
-      <p>
-        <label for="floating-placeholder">Floating placeholder:</label>
-        <select [(ngModel)]="floatLabel" id="floating-placeholder">
-          <option value="auto">Auto</option>
-          <option value="always">Always</option>
-          <option value="never">Never</option>
-        </select>
-      </p>
-      <p>
-        <label for="drinks-theme">Theme:</label>
-        <select [(ngModel)]="drinksTheme" id="drinks-theme">
-          <option *ngFor="let theme of availableThemes" [value]="theme.value">
-            {{theme.name}}
-          </option>
-        </select>
-      </p>
+      <!--<button mat-button (click)="reassignDrinkByCopy()"-->
+              <!--matTooltip="This action should clear the display value when comparing by reference.">-->
+        <!--REASSIGN DRINK BY COPY-->
+      <!--</button>-->
+      <!--<button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>-->
+      <!--<button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>-->
+      <!--<button mat-button (click)="drinkObjectControl.reset()">RESET</button>-->
+    <!--</mat-card-content>-->
+  <!--</mat-card>-->
 
-      <button mat-button (click)="currentDrink2='water-2'">SET VALUE</button>
-      <button mat-button (click)="drinksRequired=!drinksRequired">TOGGLE REQUIRED</button>
-      <button mat-button (click)="drinksDisabled=!drinksDisabled">TOGGLE DISABLED</button>
-      <button mat-button (click)="drinkControl2.reset()">RESET</button>
-    </mat-card>
+  <!--<div *ngIf="showSelect">-->
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>formControl</mat-card-subtitle>-->
 
-    <mat-card>
-      <mat-card-subtitle>Multiple selection</mat-card-subtitle>
+      <!--<mat-card-content>-->
+        <!--<mat-form-field>-->
+          <!--<mat-label>Food I would like to eat</mat-label>-->
+          <!--<mat-select [formControl]="foodControl">-->
+            <!--<mat-option *ngFor="let food of foods" [value]="food.value">{{ food.viewValue }}</mat-option>-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
+        <!--<p> Value: {{ foodControl.value }} </p>-->
+        <!--<p> Touched: {{ foodControl.touched }} </p>-->
+        <!--<p> Dirty: {{ foodControl.dirty }} </p>-->
+        <!--<p> Status: {{ foodControl.status }} </p>-->
+        <!--<button mat-button (click)="foodControl.setValue('pizza-1')">SET VALUE</button>-->
+        <!--<button mat-button (click)="toggleDisabled()">TOGGLE DISABLED</button>-->
+        <!--<button mat-button (click)="foodControl.reset()">RESET</button>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
+  <!--</div>-->
 
-      <mat-card-content>
-        <mat-form-field [color]="pokemonTheme">
-          <mat-label>Pokemon</mat-label>
-          <mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"
-                      [required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl2="ngModel">
-            <mat-option *matOptionDef="let creature" [value]="creature.value">
-               <span [class.my-option-selected]="selected">{{creature.viewValue}}</span>
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <p> Value: {{ currentPokemon2 | json }} </p>
-        <p> Touched: {{ pokemonControl2.touched }} </p>
-        <p> Dirty: {{ pokemonControl2.dirty }} </p>
-        <p> Status: {{ pokemonControl2.control?.status }} </p>
-        <p>
-          <label for="pokemon-theme">Theme:</label>
-          <select [(ngModel)]="pokemonTheme" id="pokemon-theme">
-            <option *ngFor="let theme of availableThemes" [value]="theme.value">{{ theme.name }}</option>
-          </select>
-        </p>
-        <button mat-button (click)="setPokemonValue2()">SET VALUE</button>
-        <button mat-button (click)="pokemonRequired=!pokemonRequired">TOGGLE REQUIRED</button>
-        <button mat-button (click)="pokemonDisabled=!pokemonDisabled">TOGGLE DISABLED</button>
-        <button mat-button (click)="pokemonControl2.reset()">RESET</button>
-      </mat-card-content>
-    </mat-card>
+  <!--<div *ngIf="showSelect">-->
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>Change event</mat-card-subtitle>-->
 
-    <mat-card>
-      <mat-card-subtitle>Without Angular forms</mat-card-subtitle>
+      <!--<mat-card-content>-->
+        <!--<mat-form-field>-->
+          <!--<mat-label>Starter pokemon</mat-label>-->
+          <!--<mat-select (change)="latestChangeEvent = $event">-->
+            <!--<mat-option *ngFor="let creature of pokemon" [value]="creature.value">{{ creature.viewValue }}</mat-option>-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
 
-      <mat-form-field>
-        <mat-label>Digimon</mat-label>
-        <mat-select [(value)]="currentDigimon2" [options]="digimon" [optionTextTransform]="drinkTextTransform"  [compareWith]="compareDrinkObjectsByValue">
-          <mat-option *matOptionDef="let creature; let selected=selected">
-            <span [class.my-option-selected]="selected">
-               {{creature.viewValue}}
-            </span>
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <p>Value: {{ currentDigimon2 }}</p>
-
-      <button mat-button (click)="currentDigimon2=digimon[3]">SET VALUE</button>
-      <button mat-button (click)="currentDigimon2=''">RESET</button>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-subtitle>Option groups</mat-card-subtitle>
-
-      <mat-card-content>
-        <mat-form-field>
-          <mat-label>Pokemon</mat-label>
-          <mat-select [(ngModel)]="currentPokemonFromGroup" [optgroups]="pokemonGroups" [optionTextTransform]="drinkTextTransform" [groupOptionsAccessor]="pokemonOptionsFor">
-            <mat-optgroup *matOptionGroupDef="let group" [label]="group.name"
-                          [disabled]="group.disabled" [style.color]="group.disabled ? 'red' : 'blue'">
-            </mat-optgroup>
-            <mat-option *matOptionDef="let creature">
-              {{ creature.viewValue }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
+        <!--<p> Change event value: {{ latestChangeEvent?.value }} </p>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
+  <!--</div>-->
 
 
-    <mat-card>
-      <mat-card-subtitle>compareWith</mat-card-subtitle>
-      <mat-card-content>
-        <mat-form-field [color]="drinksTheme">
-          <mat-label>Drink</mat-label>
-          <mat-select [(ngModel)]="currentDrinkObject2"
-                      [required]="drinkObjectRequired"
-                      [compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"
-                      #drinkObjectControl="ngModel" [options]="drinks"
-                      [optionTextTransform]="drinkTextTransform" >
-            <mat-option *matOptionDef="let drink" [value]="drink" [disabled]="drink.disabled">
-              {{ drink.viewValue }}
-            </mat-option>mat
-          </mat-select>
-        </mat-form-field>
-        <p> Value: {{ currentDrinkObject2 | json }} </p>
-        <p> Touched: {{ drinkObjectControl.touched }} </p>
-        <p> Dirty: {{ drinkObjectControl.dirty }} </p>
-        <p> Status: {{ drinkObjectControl.control?.status }} </p>
-        <p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>
+  <!--<div class="demo-select">-->
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>ngModel</mat-card-subtitle>-->
 
-        <button mat-button (click)="reassignDrinkByCopy()"
-                matTooltip="This action should clear the display value when comparing by reference.">
-          REASSIGN DRINK BY COPY
-        </button>
-        <button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>
-        <button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>
-        <button mat-button (click)="drinkObjectControl.reset()">RESET</button>
-      </mat-card-content>
-    </mat-card>
+      <!--<mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">-->
+        <!--<mat-label>Drink</mat-label>-->
+        <!--<mat-select [(ngModel)]="currentDrink2" [required]="drinksRequired"-->
+                    <!--[options]="drinks" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"-->
+                    <!--[disabled]="drinksDisabled" #drinkControl2="ngModel">-->
+          <!--<mat-option *matOptionDef="let option" [value]="option.value" [disabled]="option.disabled">-->
+            <!--{{option.viewValue}}-->
+          <!--</mat-option>-->
+        <!--</mat-select>-->
+        <!--<mat-icon matPrefix class="demo-drink-icon">local_drink</mat-icon>-->
+        <!--<mat-hint>Pick a drink!</mat-hint>-->
+        <!--<mat-error>You must make a selection</mat-error>-->
+      <!--</mat-form-field>-->
+      <!--<p> Value: {{ currentDrink2 | json}} </p>-->
+      <!--<p> Touched: {{ drinkControl2.touched }} </p>-->
+      <!--<p> Dirty: {{ drinkControl2.dirty }} </p>-->
+      <!--<p> Status: {{ drinkControl2.control?.status }} </p>-->
+      <!--<p>-->
+        <!--<label for="floating-placeholder">Floating placeholder:</label>-->
+        <!--<select [(ngModel)]="floatLabel" id="floating-placeholder">-->
+          <!--<option value="auto">Auto</option>-->
+          <!--<option value="always">Always</option>-->
+          <!--<option value="never">Never</option>-->
+        <!--</select>-->
+      <!--</p>-->
+      <!--<p>-->
+        <!--<label for="drinks-theme">Theme:</label>-->
+        <!--<select [(ngModel)]="drinksTheme" id="drinks-theme">-->
+          <!--<option *ngFor="let theme of availableThemes" [value]="theme.value">-->
+            <!--{{theme.name}}-->
+          <!--</option>-->
+        <!--</select>-->
+      <!--</p>-->
 
-    <mat-card>
-      <mat-card-subtitle>With template</mat-card-subtitle>
-      <mat-card-content>
-        <mat-form-field [color]="drinksTheme">
-          <mat-label>Drink</mat-label>
-          <mat-select [options]="drinks" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel" [optionValueAccessor]="optionValueAccessor">
-            <mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option.value">
-            <span [class.my-option-selected]="selected">
-              {{option.viewValue}}
-            </span>
-            </mat-option>
-          </mat-select>
-          <p> Value: {{ currentDrink2 | json}} </p>
-          <p> Touched: {{ drinkControl2.touched }} </p>
-          <p> Dirty: {{ drinkControl2.dirty }} </p>
-          <p> Status: {{ drinkControl2.control?.status }} </p>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-    <div *ngIf="showSelect">
-      <mat-card>
-        <mat-card-subtitle>formControl</mat-card-subtitle>
+      <!--<button mat-button (click)="currentDrink2='water-2'">SET VALUE</button>-->
+      <!--<button mat-button (click)="drinksRequired=!drinksRequired">TOGGLE REQUIRED</button>-->
+      <!--<button mat-button (click)="drinksDisabled=!drinksDisabled">TOGGLE DISABLED</button>-->
+      <!--<button mat-button (click)="drinkControl2.reset()">RESET</button>-->
+    <!--</mat-card>-->
 
-        <mat-card-content>
-          <mat-form-field>
-            <mat-label>Food I would like to eat</mat-label>
-            <mat-select [formControl]="foodControl">
-              <mat-option *ngFor="let food of foods" [value]="food.value">{{ food.viewValue }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <p> Value: {{ foodControl.value }} </p>
-          <p> Touched: {{ foodControl.touched }} </p>
-          <p> Dirty: {{ foodControl.dirty }} </p>
-          <p> Status: {{ foodControl.status }} </p>
-          <button mat-button (click)="foodControl.setValue('pizza-1')">SET VALUE</button>
-          <button mat-button (click)="toggleDisabled()">TOGGLE DISABLED</button>
-          <button mat-button (click)="foodControl.reset()">RESET</button>
-        </mat-card-content>
-      </mat-card>
-    </div>
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>Multiple selection</mat-card-subtitle>-->
 
-    <div *ngIf="showSelect">
-      <mat-card>
-        <mat-card-subtitle>Change event</mat-card-subtitle>
+      <!--<mat-card-content>-->
+        <!--<mat-form-field [color]="pokemonTheme">-->
+          <!--<mat-label>Pokemon</mat-label>-->
+          <!--<mat-select multiple [(ngModel)]="currentPokemon2" [options]="pokemon" [optionTextTransform]="drinkTextTransform" [optionValueAccessor]="optionValueAccessor"-->
+                      <!--[required]="pokemonRequired" [disabled]="pokemonDisabled" #pokemonControl2="ngModel">-->
+            <!--<mat-option *matOptionDef="let creature" [value]="creature.value">-->
+               <!--<span [class.my-option-selected]="selected">{{creature.viewValue}}</span>-->
+            <!--</mat-option>-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
+        <!--<p> Value: {{ currentPokemon2 | json }} </p>-->
+        <!--<p> Touched: {{ pokemonControl2.touched }} </p>-->
+        <!--<p> Dirty: {{ pokemonControl2.dirty }} </p>-->
+        <!--<p> Status: {{ pokemonControl2.control?.status }} </p>-->
+        <!--<p>-->
+          <!--<label for="pokemon-theme">Theme:</label>-->
+          <!--<select [(ngModel)]="pokemonTheme" id="pokemon-theme">-->
+            <!--<option *ngFor="let theme of availableThemes" [value]="theme.value">{{ theme.name }}</option>-->
+          <!--</select>-->
+        <!--</p>-->
+        <!--<button mat-button (click)="setPokemonValue2()">SET VALUE</button>-->
+        <!--<button mat-button (click)="pokemonRequired=!pokemonRequired">TOGGLE REQUIRED</button>-->
+        <!--<button mat-button (click)="pokemonDisabled=!pokemonDisabled">TOGGLE DISABLED</button>-->
+        <!--<button mat-button (click)="pokemonControl2.reset()">RESET</button>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
 
-        <mat-card-content>
-          <mat-form-field>
-            <mat-label>Starter pokemon</mat-label>
-            <mat-select (change)="latestChangeEvent = $event">
-              <mat-option *ngFor="let creature of pokemon" [value]="creature.value">{{ creature.viewValue }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>Without Angular forms</mat-card-subtitle>-->
 
-          <p> Change event value: {{ latestChangeEvent?.value }} </p>
-        </mat-card-content>
-      </mat-card>
-    </div>
+      <!--<mat-form-field>-->
+        <!--<mat-label>Digimon</mat-label>-->
+        <!--<mat-select [(value)]="currentDigimon2" [options]="digimon" [optionTextTransform]="drinkTextTransform"  [compareWith]="compareDrinkObjectsByValue">-->
+          <!--<mat-option *matOptionDef="let creature; let selected=selected">-->
+            <!--<span [class.my-option-selected]="selected">-->
+               <!--{{creature.viewValue}}-->
+            <!--</span>-->
+          <!--</mat-option>-->
+        <!--</mat-select>-->
+      <!--</mat-form-field>-->
 
-    <mat-form-field>
-      <mat-select placeholder="Food"
-                  [options]="foods"
-                  [formControl]="control"
-                  [optionTextTransform]="viewValueTransform"
-                  [optionValueAccessor]="optionValueAccessor"
-                  disableOptionCentering>
-        <mat-option *matOptionDef="let food" [value]="food.value">
-          {{ food.viewValue }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-</div>
-<div style="height: 500px">This div is for testing scrolled selects.</div>
+      <!--<p>Value: {{ currentDigimon2 }}</p>-->
+
+      <!--<button mat-button (click)="currentDigimon2=digimon[3]">SET VALUE</button>-->
+      <!--<button mat-button (click)="currentDigimon2=''">RESET</button>-->
+    <!--</mat-card>-->
+
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>Option groups</mat-card-subtitle>-->
+
+      <!--<mat-card-content>-->
+        <!--<mat-form-field>-->
+          <!--<mat-label>Pokemon</mat-label>-->
+          <!--<mat-select [(ngModel)]="currentPokemonFromGroup" [optgroups]="pokemonGroups" [optionTextTransform]="drinkTextTransform" [groupOptionsAccessor]="pokemonOptionsFor">-->
+            <!--<mat-optgroup *matOptionGroupDef="let group" [label]="group.name"-->
+                          <!--[disabled]="group.disabled" [style.color]="group.disabled ? 'red' : 'blue'">-->
+            <!--</mat-optgroup>-->
+            <!--<mat-option *matOptionDef="let creature">-->
+              <!--{{ creature.viewValue }}-->
+            <!--</mat-option>-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
+
+
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>compareWith</mat-card-subtitle>-->
+      <!--<mat-card-content>-->
+        <!--<mat-form-field [color]="drinksTheme">-->
+          <!--<mat-label>Drink</mat-label>-->
+          <!--<mat-select [(ngModel)]="currentDrinkObject2"-->
+                      <!--[required]="drinkObjectRequired"-->
+                      <!--[compareWith]="compareByValue ? compareDrinkObjectsByValue : compareByReference"-->
+                      <!--#drinkObjectControl="ngModel" [options]="drinks"-->
+                      <!--[optionTextTransform]="drinkTextTransform" >-->
+            <!--<mat-option *matOptionDef="let drink" [value]="drink" [disabled]="drink.disabled">-->
+              <!--{{ drink.viewValue }}-->
+            <!--</mat-option>mat-->
+          <!--</mat-select>-->
+        <!--</mat-form-field>-->
+        <!--<p> Value: {{ currentDrinkObject2 | json }} </p>-->
+        <!--<p> Touched: {{ drinkObjectControl.touched }} </p>-->
+        <!--<p> Dirty: {{ drinkObjectControl.dirty }} </p>-->
+        <!--<p> Status: {{ drinkObjectControl.control?.status }} </p>-->
+        <!--<p> Comparison Mode: {{ compareByValue ? 'VALUE' : 'REFERENCE' }} </p>-->
+
+        <!--<button mat-button (click)="reassignDrinkByCopy()"-->
+                <!--matTooltip="This action should clear the display value when comparing by reference.">-->
+          <!--REASSIGN DRINK BY COPY-->
+        <!--</button>-->
+        <!--<button mat-button (click)="drinkObjectRequired=!drinkObjectRequired">TOGGLE REQUIRED</button>-->
+        <!--<button mat-button (click)="compareByValue=!compareByValue">TOGGLE COMPARE BY VALUE</button>-->
+        <!--<button mat-button (click)="drinkObjectControl.reset()">RESET</button>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
+
+    <!--<mat-card>-->
+      <!--<mat-card-subtitle>With template</mat-card-subtitle>-->
+      <!--<mat-card-content>-->
+        <!--<mat-form-field [color]="drinksTheme">-->
+          <!--<mat-label>Drink</mat-label>-->
+          <!--<mat-select [options]="drinks" [optionTextTransform]="drinkTextTransform" [(ngModel)]="currentDrink2" #drinkControl2="ngModel" [optionValueAccessor]="optionValueAccessor">-->
+            <!--<mat-option #o *matOptionDef="let option; let index = index; let selected=selected" [value]="option.value">-->
+            <!--<span [class.my-option-selected]="selected">-->
+              <!--{{option.viewValue}}-->
+            <!--</span>-->
+            <!--</mat-option>-->
+          <!--</mat-select>-->
+          <!--<p> Value: {{ currentDrink2 | json}} </p>-->
+          <!--<p> Touched: {{ drinkControl2.touched }} </p>-->
+          <!--<p> Dirty: {{ drinkControl2.dirty }} </p>-->
+          <!--<p> Status: {{ drinkControl2.control?.status }} </p>-->
+        <!--</mat-form-field>-->
+      <!--</mat-card-content>-->
+    <!--</mat-card>-->
+    <!--<div *ngIf="showSelect">-->
+      <!--<mat-card>-->
+        <!--<mat-card-subtitle>formControl</mat-card-subtitle>-->
+
+        <!--<mat-card-content>-->
+          <!--<mat-form-field>-->
+            <!--<mat-label>Food I would like to eat</mat-label>-->
+            <!--<mat-select [formControl]="foodControl">-->
+              <!--<mat-option *ngFor="let food of foods" [value]="food.value">{{ food.viewValue }}</mat-option>-->
+            <!--</mat-select>-->
+          <!--</mat-form-field>-->
+          <!--<p> Value: {{ foodControl.value }} </p>-->
+          <!--<p> Touched: {{ foodControl.touched }} </p>-->
+          <!--<p> Dirty: {{ foodControl.dirty }} </p>-->
+          <!--<p> Status: {{ foodControl.status }} </p>-->
+          <!--<button mat-button (click)="foodControl.setValue('pizza-1')">SET VALUE</button>-->
+          <!--<button mat-button (click)="toggleDisabled()">TOGGLE DISABLED</button>-->
+          <!--<button mat-button (click)="foodControl.reset()">RESET</button>-->
+        <!--</mat-card-content>-->
+      <!--</mat-card>-->
+    <!--</div>-->
+
+    <!--<div *ngIf="showSelect">-->
+      <!--<mat-card>-->
+        <!--<mat-card-subtitle>Change event</mat-card-subtitle>-->
+
+        <!--<mat-card-content>-->
+          <!--<mat-form-field>-->
+            <!--<mat-label>Starter pokemon</mat-label>-->
+            <!--<mat-select (change)="latestChangeEvent = $event">-->
+              <!--<mat-option *ngFor="let creature of pokemon" [value]="creature.value">{{ creature.viewValue }}</mat-option>-->
+            <!--</mat-select>-->
+          <!--</mat-form-field>-->
+
+          <!--<p> Change event value: {{ latestChangeEvent?.value }} </p>-->
+        <!--</mat-card-content>-->
+      <!--</mat-card>-->
+    <!--</div>-->
+
+    <!--<mat-form-field>-->
+      <!--<mat-select placeholder="Food"-->
+                  <!--[options]="foods"-->
+                  <!--[formControl]="control"-->
+                  <!--[optionTextTransform]="viewValueTransform"-->
+                  <!--[optionValueAccessor]="optionValueAccessor"-->
+                  <!--disableOptionCentering>-->
+        <!--<mat-option *matOptionDef="let food" [value]="food.value">-->
+          <!--{{ food.viewValue }}-->
+        <!--</mat-option>-->
+      <!--</mat-select>-->
+    <!--</mat-form-field>-->
+  <!--</div>-->
+<!--</div>-->
+<!--<div style="height: 500px">This div is for testing scrolled selects.</div>-->
