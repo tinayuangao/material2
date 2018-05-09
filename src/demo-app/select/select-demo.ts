@@ -117,6 +117,12 @@ export class SelectDemo {
     {value: 'indramon-5', viewValue: 'Indramon'}
   ];
 
+  constructor() {
+    for (let i = 0; i < 1000; i++) {
+      this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
+    }
+  }
+
   toggleDisabled() {
     this.foodControl.enabled ? this.foodControl.disable() : this.foodControl.enable();
   }
