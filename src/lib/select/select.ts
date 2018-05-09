@@ -479,6 +479,12 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       this._resetOptions();
       this._initializeSelection();
     });
+
+    // Defer setting the value in order to avoid the "Expression
+    // has changed after it was checked" errors from Angular.
+    Promise.resolve().then(() => {
+      this.initializePanel();
+    });
   }
 
   ngDoCheck() {
@@ -503,12 +509,20 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Toggles the overlay panel open or closed. */
   toggle(): void {
+    console.log(`toggle`)
     this.panelOpen ? this.close() : this.open();
   }
 
   /** Opens the overlay panel. */
   open(): void {
-    if (this.disabled || !this.options || !this.options.length || this._panelOpen) {
+    console.log(`open,`, this._panelOpen)
+    this._panelOpen = true;
+    this._changeDetectorRef.markForCheck();
+  }
+
+  _panelInitialized = false;
+  initializePanel() {
+    if (this.disabled || !this.options || !this.options.length) {
       return;
     }
 
@@ -517,7 +531,6 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     // `parseInt` ignores the trailing 'px' and converts this to a number.
     this._triggerFontSize = parseInt(getComputedStyle(this.trigger.nativeElement)['font-size']);
 
-    this._panelOpen = true;
     this._keyManager.withHorizontalOrientation(null);
     this._calculateOverlayPosition();
     this._highlightCorrectOption();
@@ -529,11 +542,14 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
           this.overlayDir.overlayRef.overlayElement) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
+      this._panelInitialized = true;
+      console.log(`panel initailized`);
     });
   }
 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
+    console.log(`close: this.panelopen`, this._panelOpen)
     if (this._panelOpen) {
       this._panelOpen = false;
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
@@ -1239,6 +1255,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
    * @docs-private
    */
   onContainerClick() {
+    console.log(`container click`)
     this.focus();
     this.open();
   }

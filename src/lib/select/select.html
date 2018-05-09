@@ -1,4 +1,4 @@
-<div cdk-overlay-origin
+{{panelOpen}}<div cdk-overlay-origin
      class="mat-select-trigger"
      aria-hidden="true"
      (click)="toggle()"
@@ -18,11 +18,11 @@
 <ng-template
   cdk-connected-overlay
   cdkConnectedOverlayLockPosition
-  cdkConnectedOverlayHasBackdrop
+  [cdkConnectedOverlayHasBackdrop]="panelOpen"
   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
   [cdkConnectedOverlayScrollStrategy]="_scrollStrategy"
   [cdkConnectedOverlayOrigin]="origin"
-  [cdkConnectedOverlayOpen]="panelOpen"
+  [cdkConnectedOverlayOpen]="_panelInitialized"
   [cdkConnectedOverlayPositions]="_positions"
   [cdkConnectedOverlayMinWidth]="_triggerRect?.width"
   [cdkConnectedOverlayOffsetY]="_offsetY"
@@ -39,8 +39,9 @@
     [style.transformOrigin]="_transformOrigin"
     [class.mat-select-panel-done-animating]="_panelDoneAnimating"
     [style.font-size.px]="_triggerFontSize"
+    [style.display]="panelOpen ? 'block' : 'none'"
     (keydown)="_handleKeydown($event)">
-
+      {{panelOpen}}
     <div
       class="mat-select-content"
       [@fadeInContent]="'showing'"
@@ -49,3 +50,4 @@
     </div>
   </div>
 </ng-template>
+
