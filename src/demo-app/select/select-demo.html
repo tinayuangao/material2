@@ -9,9 +9,9 @@
     <!--<mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">-->
       <!--<mat-label>Drink</mat-label>-->
       <mat-select [(ngModel)]="currentDrink" [required]="drinksRequired"
-        [disabled]="drinksDisabled" #drinkControl="ngModel">
-        <mat-option>None</mat-option>
-        <mat-option *ngFor="let drink of drinks" [value]="drink.value" [disabled]="drink.disabled">
+        [disabled]="drinksDisabled" #drinkControl="ngModel" [options]="drinks"
+        [optionValueAccessor]="optionValueAccessor" [optionTextTransform]="drinkTextTransform">
+        <mat-option *matOptionDef="let drink" [value]="drink.value" [disabled]="drink.disabled">
           {{ drink.viewValue }}
         </mat-option>
       </mat-select>
