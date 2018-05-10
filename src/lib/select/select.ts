@@ -178,18 +178,7 @@ export class MatSelectTrigger {}
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    'role': 'listbox',
     '[attr.id]': 'id',
-    '[attr.tabindex]': 'tabIndex',
-    '[attr.aria-label]': '_ariaLabel',
-    '[attr.aria-labelledby]': 'ariaLabelledby',
-    '[attr.aria-required]': 'required.toString()',
-    '[attr.aria-disabled]': 'disabled.toString()',
-    '[attr.aria-invalid]': 'errorState',
-    '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
-    '[attr.aria-multiselectable]': 'multiple',
-    '[attr.aria-describedby]': '_ariaDescribedby || null',
-    '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
     '[class.mat-select-disabled]': 'disabled',
     '[class.mat-select-invalid]': 'errorState',
     '[class.mat-select-required]': 'required',
@@ -230,6 +219,12 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Unique id for this input. */
   private _uid = `mat-select-${nextUniqueId++}`;
+
+  /** Unique id for this list of options. */
+  _listboxId = `${this._uid}-list`;
+
+  /** Unique id for this select trigger (or selected value). */
+  _labelId = `${this._uid}-label`;
 
   /** Emits whenever the component is destroyed. */
   private readonly _destroy = new Subject<void>();
@@ -405,6 +400,7 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     this.stateChanges.next();
   }
   private _id: string;
+
 
   /** Combined stream of all of the child options' change events. */
   readonly optionSelectionChanges: Observable<MatOptionSelectionChange> = defer(() => {

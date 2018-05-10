@@ -3,7 +3,7 @@ Space above cards: <input type="number" [formControl]="topHeightCtrl">
 <div [style.height.px]="topHeightCtrl.value"></div>
 
 <div class="demo-select">
-  <mat-card *ngFor="let card of cards">
+  <mat-card> 
     <mat-card-subtitle>ngModel</mat-card-subtitle>
 
     <mat-form-field [floatLabel]="floatLabel" [color]="drinksTheme">

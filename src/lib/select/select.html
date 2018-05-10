@@ -1,10 +1,23 @@
-{{panelOpen}}<div cdk-overlay-origin
+<div cdk-overlay-origin
      class="mat-select-trigger"
-     aria-hidden="true"
      (click)="toggle()"
+     role="combobox"
+     [tabindex]="tabIndex" 
+     aria-required="false"
+     aria-autocomplete="none"
+     [attr.aria-labelledby]="ariaLabelledby"
+     [attr.aria-owns]="_listboxId"
+     [attr.aria-expanded]="panelOpen" 
+     [attr.aria-label]="_ariaLabel"
+     [attr.aria-required]="required.toString()"
+     [attr.aria-disabled]="disabled.toString()"
+     [attr.aria-invalid]="errorState"
+     [attr.aria-multiselectable]="multiple"
+     [attr.aria-describedby]="_ariaDescribedby || null"
+     [attr.aria-activedescendant]="_getAriaActiveDescendant()"
      #origin="cdkOverlayOrigin"
      #trigger>
-  <div class="mat-select-value" [ngSwitch]="empty">
+  <div class="mat-select-value" [ngSwitch]="empty" [id]="_labelId">
     <span class="mat-select-placeholder" *ngSwitchCase="true">{{placeholder || '\u00A0'}}</span>
     <span class="mat-select-value-text" *ngSwitchCase="false" [ngSwitch]="!!customTrigger">
       <span *ngSwitchDefault>{{triggerValue}}</span>
@@ -44,6 +57,8 @@
       {{panelOpen}}
     <div
       class="mat-select-content"
+      role="listbox"
+      [id]="_listboxId"
       [@fadeInContent]="'showing'"
       (@fadeInContent.done)="_onFadeInDone()">
       <ng-content></ng-content>
