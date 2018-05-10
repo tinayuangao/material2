@@ -119,9 +119,9 @@ export class SelectDemo {
 
   constructor() {
     console.log(Date.now())
-    // for (let i = 0; i < 100; i++) {
-    //   this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
-    // }
+    for (let i = 0; i < 100; i++) {
+      this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
+    }
   }
 
   start: number;
