@@ -30,14 +30,14 @@ export class SelectDemo {
   currentPokemon: string[];
   currentPokemonFromGroup: string;
   currentDigimon: string;
-  latestChangeEvent: MatSelectChange<{}>;
+  latestChangeEvent: MatSelectChange;
   floatLabel = 'auto';
   foodControl = new FormControl('pizza-1');
   topHeightCtrl = new FormControl(0);
   drinksTheme = 'primary';
   pokemonTheme = 'primary';
   compareByValue = true;
-  cards = new Array(100)
+  cards = new Array(1000)
 
   // foods = [
   //   {value: null, viewValue: 'None'},
