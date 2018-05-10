@@ -475,12 +475,6 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       this._resetOptions();
       this._initializeSelection();
     });
-
-    // Defer setting the value in order to avoid the "Expression
-    // has changed after it was checked" errors from Angular.
-    Promise.resolve().then(() => {
-      this.initializePanel();
-    });
   }
 
   ngDoCheck() {
@@ -716,6 +710,12 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       this.focused = true;
       this.stateChanges.next();
     }
+
+    // Defer setting the value in order to avoid the "Expression
+    // has changed after it was checked" errors from Angular.
+    Promise.resolve().then(() => {
+      this.initializePanel();
+    });
   }
 
   /**
