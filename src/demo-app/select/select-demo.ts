@@ -36,7 +36,7 @@ export class SelectDemo {
   drinksTheme = 'primary';
   pokemonTheme = 'primary';
   compareByValue = true;
-  cards = new Array(100);
+  cards = new Array(1000);
 
   foods = [
     {value: null, viewValue: 'None'},
@@ -119,9 +119,9 @@ export class SelectDemo {
 
   constructor() {
     console.log(Date.now())
-    for (let i = 0; i < 100; i++) {
-      this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
-    }
+    // for (let i = 0; i < 100; i++) {
+    //   this.drinks.push({value: `special-${i}`, viewValue: `Special order ${i}`})
+    // }
   }
 
   start: number;
