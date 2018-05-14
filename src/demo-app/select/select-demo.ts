@@ -37,7 +37,7 @@ export class SelectDemo {
   drinksTheme = 'primary';
   pokemonTheme = 'primary';
   compareByValue = true;
-  cards = new Array(1000)
+  cards = new Array(100)
 
   // foods = [
   //   {value: null, viewValue: 'None'},
