@@ -72,30 +72,30 @@
 <!-- Listbox and options are always in the DOM and do not use the user's template.
      The listbox must be `display: none` while the combobox is not expanded so that
      its activedescendant doesn't take effect. -->
-<div role="listbox"
+<select
      [id]="_listboxId"
-     [attr.aria-multiselectable]="multiple"
+     [multiple]="multiple"
      [style.display]="panelOpen ? 'block' : 'none'"
      class="cdk-visually-hidden"
      *ngIf="optionTemplate">
-  <div role="option" *ngFor="let opt of _optionDataStatus; let index = index"
+  <option *ngFor="let opt of _optionDataStatus; let index = index"
        [id]="opt.id"
-       [attr.aria-disabled]="opt.disabled"
-       [attr.aria-selected]="opt.selected">
+       [disabled]="opt.disabled"
+       [selected]="opt.selected">
       {{optionTextTransform(opt.optionData)}}
-  </div>
-  <div role="group" *ngFor="let group of _optionGroupStatus; let index = index"
+  </option>
+  <optgroup *ngFor="let group of _optionGroupStatus; let index = index"
        id="{{_listboxId}}-group-{{index}}"
-       [attr.aria-disabled]="group.disabled">
+       [disabled]="group.disabled">
     {{group.label}}
-    <div role="option" *ngFor="let opt of _optionGroupDataStatus[index]"
+    <option *ngFor="let opt of _optionGroupDataStatus[index]"
          [id]="opt.id"
-         [attr.aria-disabled]="opt.disabled"
-         [attr.aria-selected]="opt.selected">
+         [disabled]="opt.disabled"
+         [selected]="opt.selected">
       {{optionTextTransform(opt.optionData)}} {{index}}
-    </div>
-  </div>
-</div>
+    </option>
+  </optgroup>
+</select>
 
 
 <!-- Workaround for VoiceOver + Safari not correctly supporting activedescendant https://bugs.webkit.org/show_bug.cgi?id=167671 -->
