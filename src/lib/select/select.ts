@@ -167,6 +167,17 @@ export const _MatSelectMixinBase = mixinDisableRipple(
 })
 export class MatSelectTrigger {}
 
+export interface MatOptionData<V> {
+  disabled?: boolean;
+  label?: string;
+  value?: V;
+}
+
+export interface MatOptionDataGroup<V> {
+  disabled?: boolean;
+  label?: string;
+  options: MatOptionData<V>;
+}
 
 @Component({
   moduleId: module.id,
@@ -178,18 +189,18 @@ export class MatSelectTrigger {}
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    'role': 'listbox',
-    '[attr.id]': 'id',
-    '[attr.tabindex]': 'tabIndex',
-    '[attr.aria-label]': '_ariaLabel',
-    '[attr.aria-labelledby]': 'ariaLabelledby',
-    '[attr.aria-required]': 'required.toString()',
-    '[attr.aria-disabled]': 'disabled.toString()',
-    '[attr.aria-invalid]': 'errorState',
-    '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
-    '[attr.aria-multiselectable]': 'multiple',
-    '[attr.aria-describedby]': '_ariaDescribedby || null',
-    '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
+    // 'role': 'listbox',
+    // '[attr.id]': 'id',
+    // '[attr.tabindex]': 'tabIndex',
+    // '[attr.aria-label]': '_ariaLabel',
+    // '[attr.aria-labelledby]': 'ariaLabelledby',
+    // '[attr.aria-required]': 'required.toString()',
+    // '[attr.aria-disabled]': 'disabled.toString()',
+    // '[attr.aria-invalid]': 'errorState',
+    // '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
+    // '[attr.aria-multiselectable]': 'multiple',
+    // '[attr.aria-describedby]': '_ariaDescribedby || null',
+    // '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
     '[class.mat-select-disabled]': 'disabled',
     '[class.mat-select-invalid]': 'errorState',
     '[class.mat-select-required]': 'required',
@@ -207,7 +218,8 @@ export class MatSelectTrigger {}
     {provide: MAT_OPTION_PARENT_COMPONENT, useExisting: MatSelect}
   ],
 })
-export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, OnChanges,
+export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
+    implements AfterContentInit, OnChanges,
     OnDestroy, OnInit, DoCheck, ControlValueAccessor, CanDisable, HasTabIndex,
     MatFormFieldControl<any>, CanUpdateErrorState, CanDisableRipple {
   /** Whether or not the overlay panel is open. */
@@ -263,6 +275,8 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** Whether the panel's animation is done. */
   _panelDoneAnimating: boolean = false;
+
+  _listboxId = `${this._uid}-list`;
 
   /** Strategy that will be used to handle scrolling while the select panel is open. */
   _scrollStrategy = this._scrollStrategyFactory();
@@ -324,6 +338,43 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
 
   /** User-supplied override of the trigger element. */
   @ContentChild(MatSelectTrigger) customTrigger: MatSelectTrigger;
+
+  /** Whether an option is disabled */
+  disabledAccessor: (T) => boolean = _ => false;
+
+  /** Whether an optgroup is disabled */
+  groupDisabledAccessor: (G) => boolean = _ => false;
+
+  /** The display text of an option */
+  textAccessor: (T) => string = o => `${o}`;
+
+  /** The display text of an optgroup */
+  groupTextAccessor: (G) => string = g => `${g}`;
+
+  /** The value of an option */
+  valueAccessor: (T) => V = o => o;
+
+  /** The options in an optgroup */
+  groupOptionsAccessor: (any) => any[] = _ => [];
+
+  /** Read options and optgroups from content inside <mat-select> */
+  contentMode: boolean = false;
+
+  /** The option data array */
+  @Input('options')
+  get optionData(): any[] { return this._optionData; }
+  set optionData(value: any[]) {
+    this._optionData = value;
+  }
+  _optionData: any[];
+
+  /** The option data array */
+  @Input('groups')
+  get optionDataGroups(): any[] { return this._optionDataGroups; }
+  set optionDataGroups(value: any[]) {
+    this._optionDataGroups = value;
+  }
+  _optionDataGroups: any[];
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -475,9 +526,19 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
   ngAfterContentInit() {
     this._initKeyManager();
 
+    if (this._optionData === undefined && this._optionDataGroups === undefined) {
+      // use content mode
+      this.contentMode = true;
+    }
+
     this.options.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+      this.contentMode && this._resetOptionData();
       this._resetOptions();
       this._initializeSelection();
+    });
+
+    this.optionGroups.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+      this.contentMode && this._resetOptionDataGroups();
     });
   }
 
@@ -499,6 +560,14 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     this._destroy.next();
     this._destroy.complete();
     this.stateChanges.complete();
+  }
+
+  isOptionSelected(option: T): boolean {
+    const value = this.valueAccessor(option);
+    if (this.empty) { return false; }
+    return this.multiple
+        ? this.value.find(o => this._compareWith(o,  value))
+        : this._compareWith(this.value, value);
   }
 
   /** Toggles the overlay panel open or closed. */
@@ -841,6 +910,31 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       }
     });
   }
+
+  /** Extract information from content */
+  private _resetOptionData(): void {
+    if (this.optionGroups.length) { return; }
+    this.textAccessor = (option: MatOption) => option.viewValue;
+    this.valueAccessor = (option: MatOption) => option.value;
+    this.disabledAccessor = (option: MatOption) => option.disabled;
+
+    this._optionData = this.options.toArray();
+  }
+
+  /** Extract information from content */
+  private _resetOptionDataGroups(): void {
+    this.textAccessor = (option: MatOption) => option.viewValue;
+    this.valueAccessor = (option: MatOption) => option.value;
+    this.disabledAccessor = (option: MatOption) => option.disabled;
+
+    this.groupTextAccessor = (group: MatOptgroup) => group.label;
+    this.groupDisabledAccessor = (group: MatOptgroup) => group.disabled;
+    this.groupOptionsAccessor = (group: MatOptgroup) =>
+        this.options.filter(option => option.group === group);
+
+    this._optionDataGroups = this.optionGroups.toArray();
+  }
+
 
   /** Drops current option subscriptions and IDs and resets from scratch. */
   private _resetOptions(): void {
