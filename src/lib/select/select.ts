@@ -355,10 +355,15 @@ export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
   valueAccessor: (T) => V = o => o;
 
   /** The options in an optgroup */
-  groupOptionsAccessor: (any) => any[] = _ => [];
+  groupOptionsAccessor: (any) => any[] =
+      (group) => this.options.filter(option => option.group === group);
 
   /** Read options and optgroups from content inside <mat-select> */
   contentMode: boolean = false;
+
+  get accessibleOptions() {
+    return this.optionGroups.length ? [] : this.options;
+  }
 
   /** The option data array */
   @Input('options')
@@ -525,21 +530,21 @@ export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
 
   ngAfterContentInit() {
     this._initKeyManager();
-
-    if (this._optionData === undefined && this._optionDataGroups === undefined) {
-      // use content mode
-      this.contentMode = true;
-    }
+    //
+    // if (this._optionData === undefined && this._optionDataGroups === undefined) {
+    //   // use content mode
+    //   this.contentMode = true;
+    // }
 
     this.options.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
-      this.contentMode && this._resetOptionData();
+      // this.contentMode && this._resetOptionData();
       this._resetOptions();
       this._initializeSelection();
     });
-
-    this.optionGroups.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
-      this.contentMode && this._resetOptionDataGroups();
-    });
+    //
+    // this.optionGroups.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+    //   this.contentMode && this._resetOptionDataGroups();
+    // });
   }
 
   ngDoCheck() {
@@ -910,30 +915,30 @@ export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
       }
     });
   }
-
-  /** Extract information from content */
-  private _resetOptionData(): void {
-    if (this.optionGroups.length) { return; }
-    this.textAccessor = (option: MatOption) => option.viewValue;
-    this.valueAccessor = (option: MatOption) => option.value;
-    this.disabledAccessor = (option: MatOption) => option.disabled;
-
-    this._optionData = this.options.toArray();
-  }
-
-  /** Extract information from content */
-  private _resetOptionDataGroups(): void {
-    this.textAccessor = (option: MatOption) => option.viewValue;
-    this.valueAccessor = (option: MatOption) => option.value;
-    this.disabledAccessor = (option: MatOption) => option.disabled;
-
-    this.groupTextAccessor = (group: MatOptgroup) => group.label;
-    this.groupDisabledAccessor = (group: MatOptgroup) => group.disabled;
-    this.groupOptionsAccessor = (group: MatOptgroup) =>
-        this.options.filter(option => option.group === group);
-
-    this._optionDataGroups = this.optionGroups.toArray();
-  }
+  //
+  // /** Extract information from content */
+  // private _resetOptionData(): void {
+  //   if (this.optionGroups.length) { return; }
+  //   this.textAccessor = (option: MatOption) => option.viewValue;
+  //   this.valueAccessor = (option: MatOption) => option.value;
+  //   this.disabledAccessor = (option: MatOption) => option.disabled;
+  //
+  //   this._optionData = this.options.toArray();
+  // }
+  //
+  // /** Extract information from content */
+  // private _resetOptionDataGroups(): void {
+  //   this.textAccessor = (option: MatOption) => option.viewValue;
+  //   this.valueAccessor = (option: MatOption) => option.value;
+  //   this.disabledAccessor = (option: MatOption) => option.disabled;
+  //
+  //   this.groupTextAccessor = (group: MatOptgroup) => group.label;
+  //   this.groupDisabledAccessor = (group: MatOptgroup) => group.disabled;
+  //   this.groupOptionsAccessor = (group: MatOptgroup) =>
+  //       this.options.filter(option => option.group === group);
+  //
+  //   this._optionDataGroups = this.optionGroups.toArray();
+  // }
 
 
   /** Drops current option subscriptions and IDs and resets from scratch. */
