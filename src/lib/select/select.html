@@ -1,8 +1,9 @@
 <div cdk-overlay-origin
-     aria-hidden="true"
      class="mat-select-trigger"
      role="combobox"
+     aria-haspopup="listbox"
      [attr.id]="id"
+     [attr.aria-expanded]="panelOpen"
      [attr.tabindex]="tabIndex"
      [attr.aria-label]="_ariaLabel"
      [attr.aria-labelledby]="ariaLabelledby"
@@ -25,6 +26,23 @@
   </div>
 
   <div class="mat-select-arrow-wrapper"><div class="mat-select-arrow"></div></div>
+  <select [id]="_listboxId" [multiple]="multiple" class="cdk-visually-hidden" tabindex="-1">
+    <option *ngFor="let option of accessibleOptions"
+            [disabled]="option.disabled"
+            [value]="option.value"
+            [selected]="option.selected">
+      {{option.viewValue}} {{option.selected}}
+    </option>
+    <optgroup *ngFor="let group of optionGroups"
+              [disabled]="group.disabled" [label]="group.label">
+      <option *ngFor="let option of groupOptionsAccessor(group)"
+              [disabled]="option.disabled"
+              [value]="option.value"
+              [selected]="option.selected">
+        {{option.viewValue}}
+      </option>
+    </optgroup>
+  </select>
 </div>
 
 <ng-template
@@ -62,21 +80,3 @@
     </div>
   </div>
 </ng-template>
-
-<select [id]="_listboxId" [multiple]="multiple" class="cdk-visually-hidden">
-    <option *ngFor="let option of accessibleOptions"
-            [disabled]="option.disabled"
-            [value]="option.value"
-            [selected]="option.selected">
-      {{option.viewValue}} {{option.selected}}
-    </option>
-    <optgroup *ngFor="let group of optionGroups"
-            [disabled]="group.disabled" [label]="group.label">
-      <option *ngFor="let option of groupOptionsAccessor(group)"
-              [disabled]="option.disabled"
-              [value]="option.value"
-              [selected]="option.selected">
-        {{option.viewValue}}
-      </option>
-    </optgroup>
-</select>
