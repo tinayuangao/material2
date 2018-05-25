@@ -1,7 +1,7 @@
 <div cdk-overlay-origin
      class="mat-select-trigger"
      role="combobox"
-     aria-haspopup="listbox"
+     aria-autocomplete="none"
      [attr.id]="id"
      [attr.aria-expanded]="panelOpen"
      [attr.tabindex]="tabIndex"
@@ -11,7 +11,6 @@
      [attr.aria-disabled]="disabled.toString()"
      [attr.aria-invalid]="errorState"
      [attr.aria-owns]="_listboxId"
-     [attr.aria-multiselectable]="multiple"
      [attr.aria-describedby]="_ariaDescribedby || null"
      [attr.aria-activedescendant]="_getAriaActiveDescendant()"
      (click)="toggle()"
@@ -26,23 +25,6 @@
   </div>
 
   <div class="mat-select-arrow-wrapper"><div class="mat-select-arrow"></div></div>
-  <select [id]="_listboxId" [multiple]="multiple" class="cdk-visually-hidden" tabindex="-1">
-    <option *ngFor="let option of accessibleOptions"
-            [disabled]="option.disabled"
-            [value]="option.value"
-            [selected]="option.selected">
-      {{option.viewValue}} {{option.selected}}
-    </option>
-    <optgroup *ngFor="let group of optionGroups"
-              [disabled]="group.disabled" [label]="group.label">
-      <option *ngFor="let option of groupOptionsAccessor(group)"
-              [disabled]="option.disabled"
-              [value]="option.value"
-              [selected]="option.selected">
-        {{option.viewValue}}
-      </option>
-    </optgroup>
-  </select>
 </div>
 
 <ng-template
@@ -62,7 +44,7 @@
 
   <div
     #panel
-    aria-hidden="true"
+    [attr.aria-hidden]="true"
     class="mat-select-panel {{ _getPanelTheme() }}"
     [ngClass]="panelClass"
     [@transformPanel]="multiple ? 'showing-multiple' : 'showing'"
@@ -80,3 +62,23 @@
     </div>
   </div>
 </ng-template>
+
+<div role="listbox" [id]="_listboxId" [attr.aria-multiselectable]="multiple" class="cdk-visually-hidden" tabindex="-1">
+  <div role="option" *ngFor="let option of accessibleOptions"
+          id="{{option.id}}-option"
+          [attr.aria-disabled]="option.disabled"
+          [attr.aria-active]="option.active"
+          [attr.aria-selected]="option.selected">
+    {{option.viewValue}}
+  </div>
+  <div role="group" *ngFor="let group of optionGroups"
+            [attr.aria-disabled]="group.disabled"> {{group.label}}
+    <div role="option" *ngFor="let option of groupOptionsAccessor(group)"
+            id="{{option.id}}-option"
+            [attr.aria-disabled]="option.disabled"
+            [attr.aria-active]="option.active"
+            [attr.aria-selected]="option.selected">
+      {{option.viewValue}}
+    </div>
+  </div>
+</div>

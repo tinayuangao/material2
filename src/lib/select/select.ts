@@ -1137,7 +1137,7 @@ export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
   /** Determines the `aria-activedescendant` to be set on the host. */
   _getAriaActiveDescendant(): string | null {
     if (this.panelOpen && this._keyManager && this._keyManager.activeItem) {
-      return this._keyManager.activeItem.id;
+      return `${this._keyManager.activeItem.id}-option`;
     }
 
     return null;
