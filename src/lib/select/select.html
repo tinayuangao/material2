@@ -63,22 +63,25 @@
   </div>
 </ng-template>
 
-<div role="listbox" [id]="_listboxId" [attr.aria-multiselectable]="multiple" class="cdk-visually-hidden" tabindex="-1">
-  <div role="option" *ngFor="let option of accessibleOptions"
+<select [id]="_listboxId" [attr.aria-multiselectable]="multiple" class="cdk-visually-hidden" tabindex="-1">
+  <option *ngFor="let option of accessibleOptions"
           id="{{option.id}}-option"
-          [attr.aria-disabled]="option.disabled"
-          [attr.aria-active]="option.active"
-          [attr.aria-selected]="option.selected">
+          (pressed)="option._selectViaInteraction()"
+          [attr.label]="option.viewValue"
+          [attr.value]="option.value"
+          [attr.disabled]="option.disabled || null"
+          [attr.selected]="option.selected || null">
     {{option.viewValue}}
-  </div>
-  <div role="group" *ngFor="let group of optionGroups"
-            [attr.aria-disabled]="group.disabled"> {{group.label}}
-    <div role="option" *ngFor="let option of groupOptionsAccessor(group)"
+  </option>
+  <optgroup *ngFor="let group of optionGroups"
+            [disabled]="group.disabled" [label]="group.label">
+    <option *ngFor="let option of groupOptionsAccessor(group)"
             id="{{option.id}}-option"
-            [attr.aria-disabled]="option.disabled"
-            [attr.aria-active]="option.active"
-            [attr.aria-selected]="option.selected">
+            (pressed)="option._selectViaInteraction()"
+            [attr.value]="option.value"
+            [attr.disabled]="option.disabled || null"
+            [attr.selected]="option.selected || null">
       {{option.viewValue}}
-    </div>
-  </div>
-</div>
+    </option>
+  </optgroup>
+</select>

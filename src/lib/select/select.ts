@@ -969,7 +969,7 @@ export class MatSelect<T=any, G=any, V=any> extends _MatSelectMixinBase
   }
 
   /** Invoked when an option is clicked. */
-  private _onSelect(option: MatOption): void {
+  _onSelect(option: MatOption): void {
     const wasSelected = this._selectionModel.isSelected(option);
 
     // TODO(crisbeto): handle blank/null options inside multi-select.
