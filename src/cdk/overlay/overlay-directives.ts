@@ -165,6 +165,9 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
   @Input('cdkConnectedOverlayScrollStrategy') scrollStrategy: ScrollStrategy =
       this._scrollStrategy();
 
+  /** Strategy to detach the overlay panel on ESCAPE keydown */
+  @Input('cdkConnectedOverlayDetachOnEscape') detachOnEscape: boolean = true;
+
   /** Whether the overlay is open. */
   @Input('cdkConnectedOverlayOpen') open: boolean = false;
 
@@ -335,7 +338,7 @@ export class CdkConnectedOverlay implements OnDestroy, OnChanges {
       this._createOverlay();
 
       this._overlayRef!.keydownEvents().subscribe((event: KeyboardEvent) => {
-        if (event.keyCode === ESCAPE) {
+        if (this.detachOnEscape && event.keyCode === ESCAPE) {
           this._detachOverlay();
         }
       });

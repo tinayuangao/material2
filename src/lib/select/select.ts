@@ -14,6 +14,7 @@ import {
   DOWN_ARROW,
   END,
   ENTER,
+  ESCAPE,
   HOME,
   LEFT_ARROW,
   RIGHT_ARROW,
@@ -194,7 +195,7 @@ export class MatSelectTrigger {}
     '[attr.aria-required]': 'required.toString()',
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': 'errorState',
-    '[attr.aria-owns]': 'panelOpen ? _optionIds : null',
+    '[attr.aria-owns]': '_optionIds',
     '[attr.aria-multiselectable]': 'multiple',
     '[attr.aria-describedby]': '_ariaDescribedby || null',
     '[attr.aria-activedescendant]': '_getAriaActiveDescendant()',
@@ -512,6 +513,14 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
       this._resetOptions();
       this._initializeSelection();
     });
+
+    this._triggerRect = this.trigger.nativeElement.getBoundingClientRect();
+
+    // Defer setting the value in order to void the "Expression has changed after it was checked"
+    // errors from Angular
+    Promise.resolve().then(() => {
+      this._initializePanel();
+    });
   }
 
   ngDoCheck() {
@@ -554,20 +563,34 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     this._keyManager.withHorizontalOrientation(null);
     this._calculateOverlayPosition();
     this._highlightCorrectOption();
+    this._showBackdrop();
+    this.overlayDir.overlayRef.overlayElement.style.minWidth = `${this._triggerRect.width}px`;
+    if (this._dir) {
+      this.overlayDir.overlayRef.setDirection(this._dir);
+    }
     this._changeDetectorRef.markForCheck();
 
     // Set the font size on the panel element once it exists.
     this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
       if (this._triggerFontSize && this.overlayDir.overlayRef &&
-          this.overlayDir.overlayRef.overlayElement) {
+        this.overlayDir.overlayRef.overlayElement) {
         this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
       }
+
+      this.overlayDir.overlayRef.updatePosition();
+
+      this._changeDetectorRef.detectChanges();
+      this._calculateOverlayOffsetX();
+      this.panel.nativeElement.scrollTop = this._scrollTop;
+
+      this._changeDetectorRef.detectChanges();
     });
   }
 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     if (this._panelOpen) {
+      this._hideBackdrop();
       this._panelOpen = false;
       this._keyManager.withHorizontalOrientation(this._isRtl() ? 'rtl' : 'ltr');
       this._changeDetectorRef.markForCheck();
@@ -695,6 +718,9 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
     } else if ((keyCode === ENTER || keyCode === SPACE) && manager.activeItem) {
       event.preventDefault();
       manager.activeItem._selectViaInteraction();
+    } else if (keyCode === ESCAPE) {
+      event.preventDefault();
+      this.close();
     } else {
       const previouslyFocusedIndex = manager.activeItemIndex;
 
@@ -756,6 +782,45 @@ export class MatSelect extends _MatSelectMixinBase implements AfterContentInit, 
   /** Whether the select has a value. */
   get empty(): boolean {
     return !this._selectionModel || this._selectionModel.isEmpty();
+  }
+
+  /** Show the backdrop of the overlay. */
+  private _showBackdrop() {
+    if (this.overlayDir.overlayRef.backdropElement) {
+      this.overlayDir.overlayRef.backdropElement.style.display = 'block';
+    }
+  }
+
+  /** Hide the backdrop of the overlay. */
+  private _hideBackdrop() {
+    if (this.overlayDir.overlayRef.backdropElement) {
+      this.overlayDir.overlayRef.backdropElement.style.display = 'none';
+    }
+  }
+
+  /** Initialize the overlay panel, and make it invisible. */
+  private _initializePanel() {
+    if (this.disabled || !this.options || !this.options.length) {
+      return;
+    }
+
+    this._triggerRect = this.trigger.nativeElement.getBoundingClientRect();
+    // Note: The computed font-size will be a string pixel value (e.g. "16px").
+    // `parseInt` ignores the trailing 'px' and converts this to a number.
+    this._triggerFontSize = parseInt(getComputedStyle(this.trigger.nativeElement)['font-size']);
+
+    this._calculateOverlayPosition();
+    this._changeDetectorRef.markForCheck();
+
+    // Set the font size on the panel element once it exists.
+    this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
+      if (this._triggerFontSize && this.overlayDir.overlayRef &&
+        this.overlayDir.overlayRef.overlayElement) {
+        this.overlayDir.overlayRef.overlayElement.style.fontSize = `${this._triggerFontSize}px`;
+      }
+
+      this._hideBackdrop();
+    });
   }
 
   private _initializeSelection(): void {
